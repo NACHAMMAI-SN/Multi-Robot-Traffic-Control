@@ -9,6 +9,7 @@
 ![Status](https://img.shields.io/badge/Status-Complete-success)
 
 **A lane-aware multi-robot traffic control simulation for warehouse automation.**
+
 Built for the GOAT Robotics Hackathon.
 
 [Quick Start](#quick-start) • [Features](#features) • [Scenarios](#scenarios) • [Architecture](#architecture) • [Usage](#usage) • [Results](#results)
@@ -133,7 +134,7 @@ Press H in GUI to toggle heatmap overlay.
 
 ---
 
-### Bonus Features
+### Additional Features
 
 #### Battery Management
 
