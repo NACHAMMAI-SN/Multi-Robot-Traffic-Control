@@ -8,9 +8,6 @@
 ![License](https://img.shields.io/badge/License-MIT-purple)
 ![Status](https://img.shields.io/badge/Status-Complete-success)
 
-**Demo Link**
-https://drive.google.com/file/d/1EA2QPYAPFCLYnDguV7cIIntmQPk7cZtN/view?usp=drive_link
-
 **A lane-aware multi-robot traffic control simulation for warehouse automation.**
 
 Built for the GOAT Robotics Hackathon.
@@ -20,6 +17,11 @@ Built for the GOAT Robotics Hackathon.
 </div>
 
 ---
+
+**Demo Link**
+
+https://drive.google.com/file/d/1EA2QPYAPFCLYnDguV7cIIntmQPk7cZtN/view?usp=drive_link
+
 
 ## Overview
 
