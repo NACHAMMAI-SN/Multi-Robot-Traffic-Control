@@ -44,7 +44,7 @@ class Effect:
 
 class Simulator:
     def __init__(self, lane_graph, robots, traffic_controller, heatmap, existing_screen=None, 
-                 battery_manager=None, scenario="night_shift", max_steps=1000):
+                 battery_manager=None, scenario="night_shift", max_steps=1000, mode="auto"):
         if existing_screen is None:
             pygame.init()
             self.screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
@@ -59,9 +59,12 @@ class Simulator:
         self.bm = battery_manager
         self.scenario = scenario
         self.max_steps = max_steps
+        self.mode = mode
         self.show_heatmap = False
         self.paused = False
         self.running = True
+        self.force_deadlock_requested = False
+        self.deadlock_btn = None
         self.effects = []
         self.cam = [30, 30]
         self.step_count = 0
@@ -73,7 +76,6 @@ class Simulator:
         self.f_tiny = pygame.font.SysFont("arial", 11)
         
         # Manual mode attributes
-        self.mode = "auto"
         self.selected_robot = None
         self.target_nodes = {}
         self.pulse_timer = 0
@@ -363,11 +365,15 @@ class Simulator:
         sx = MAP_W + 16
         y_start = WINDOW_H - 240  # Taller panel
         
+        # Limit panel height to not overlap with button (button at WINDOW_H - 150)
+        max_panel_bottom = WINDOW_H - 165  # Leave 15px gap above button
+        panel_height = max_panel_bottom - (y_start - 8)
+        
         pygame.draw.rect(self.screen, (30, 30, 60, 240),  # More solid
-                        (MAP_W + 8, y_start - 8, WINDOW_W - MAP_W - 16, 220),
+                        (MAP_W + 8, y_start - 8, WINDOW_W - MAP_W - 16, panel_height),
                         border_radius=8)
         pygame.draw.rect(self.screen, (100, 100, 180),  # Brighter border
-                        (MAP_W + 8, y_start - 8, WINDOW_W - MAP_W - 16, 220),
+                        (MAP_W + 8, y_start - 8, WINDOW_W - MAP_W - 16, panel_height),
                         border_radius=8, width=2)
         
         y = y_start
@@ -381,9 +387,16 @@ class Simulator:
         self.screen.blit(progress_surf, (sx, y))
         y += 22
         
-        # Robot checklist
+        # Robot checklist - with overflow protection
         y += 4
+        robots_shown = 0
         for i, robot in enumerate(self.robots):
+            # Stop drawing if we would overflow into button area
+            if y + 18 > max_panel_bottom - 30:  # Leave room for hint
+                more_txt = self.f_tiny.render(f"... {len(self.robots) - robots_shown} more", True, TEXT_DIM)
+                self.screen.blit(more_txt, (sx, y))
+                break
+            
             if robot.id in self.completed_trips:
                 dot_color = GOLD  # Gold for completed trips
                 status = "✓"
@@ -414,13 +427,15 @@ class Simulator:
             txt = self.f_small.render(text, True, color)
             self.screen.blit(txt, (sx + 18, y))
             y += 18
+            robots_shown += 1
         
-        # Add deadlock demo hint
-        y += 8
-        hint1 = self.f_tiny.render("💡 TIP: Assign robots toward each other", True, TEXT_DIM)
-        hint2 = self.f_tiny.render("    to see deadlock resolution!", True, TEXT_DIM)
-        self.screen.blit(hint1, (sx, y))
-        self.screen.blit(hint2, (sx, y + 12))
+        # Add deadlock demo hint if there's room
+        if y + 24 <= max_panel_bottom:
+            y += 10
+            hint1 = self.f_tiny.render("💡 TIP: Click button below", True, TEXT_DIM)
+            hint2 = self.f_tiny.render("   for deadlock demo!", True, TEXT_DIM)
+            self.screen.blit(hint1, (sx, y))
+            self.screen.blit(hint2, (sx, y + 12))
     
     def mpos(self, x, y):
         """Map position to screen coordinates."""
@@ -627,35 +642,39 @@ class Simulator:
         pygame.draw.rect(self.screen, SIDEBAR_BG, (sx, 0, WINDOW_W - sx, WINDOW_H))
         pygame.draw.line(self.screen, (50, 50, 80), (sx, 0), (sx, WINDOW_H), 2)
         
+        # Clip sidebar to prevent overflow
+        sidebar_clip = pygame.Rect(MAP_W, 0, WINDOW_W-MAP_W, WINDOW_H-40)
+        self.screen.set_clip(sidebar_clip)
+        
         x = sx + 16
-        y = 14
+        y = 10
         
-        # MODE BANNER - IMPROVED
-        banner_h = 40
+        # MODE BANNER - COMPACT
+        banner_h = 32
         if self.mode == "manual":
-            banner_bg = (140, 100, 20)  # Bright yellow bg
-            banner_text = "🎮 MANUAL MODE"
+            banner_bg = (140, 100, 20)
+            banner_text = "🎮 MANUAL"
         else:
-            banner_bg = (40, 140, 60)  # Bright green bg
-            banner_text = "🤖 AUTO MODE"
+            banner_bg = (40, 140, 60)
+            banner_text = "🤖 AUTO"
         
-        banner = self.f_large.render(banner_text, True, (255, 255, 255))  # Pure white
-        banner_width = banner.get_width() + 40
+        banner = self.f_med.render(banner_text, True, (255, 255, 255))
+        banner_width = banner.get_width() + 30
         pygame.draw.rect(self.screen, banner_bg, 
                         (sx + WINDOW_W - MAP_W - banner_width - 10, y, banner_width, banner_h),
-                        border_radius=8)
-        self.screen.blit(banner, (sx + WINDOW_W - MAP_W - banner_width + 20, y + 8))
-        y += banner_h + 8
+                        border_radius=6)
+        self.screen.blit(banner, (sx + WINDOW_W - MAP_W - banner_width + 15, y + 7))
+        y += banner_h + 6
         
-        # Title
-        title = self.f_large.render("Traffic Control", True, ACCENT)
+        # Title - COMPACT
+        title = self.f_med.render("Traffic Control", True, ACCENT)
         self.screen.blit(title, (x, y))
-        y += 26
-        sub = self.f_small.render("Multi-Robot System", True, TEXT_SECONDARY)
+        y += 18
+        sub = self.f_tiny.render("Multi-Robot System", True, TEXT_SECONDARY)
         self.screen.blit(sub, (x, y))
-        y += 20
+        y += 14
         pygame.draw.line(self.screen, (50, 50, 80), (sx + 10, y), (WINDOW_W - 10, y))
-        y += 10
+        y += 8
         
         # Metrics - IMPROVED TEXT
         metrics = self.tc.get_metrics()
@@ -673,15 +692,15 @@ class Simulator:
             self.screen.blit(self.f_small.render(label, True, TEXT_SECONDARY), (x, y))
             vs = self.f_small.render(val, True, TEXT_PRIMARY)
             self.screen.blit(vs, (WINDOW_W - vs.get_width() - 16, y))
-            y += 18
+            y += 15
         
-        y += 6
+        y += 4
         pygame.draw.line(self.screen, (50, 50, 80), (sx + 10, y), (WINDOW_W - 10, y))
-        y += 10
+        y += 8
         
-        # Robots - TALLER SPACING
-        self.screen.blit(self.f_med.render("ROBOTS", True, TEXT_SECONDARY), (x, y))
-        y += 20
+        # Robots - COMPACT
+        self.screen.blit(self.f_small.render("ROBOTS", True, TEXT_SECONDARY), (x, y))
+        y += 16
         from src.robots.robot import RobotStatus
         for i, robot in enumerate(self.robots):
             color = ROBOT_COLORS[i % len(ROBOT_COLORS)]
@@ -696,36 +715,36 @@ class Simulator:
             }
             st, sc = st_map.get(robot.status, ("???", TEXT_SECONDARY))
             self.screen.blit(self.f_small.render(st, True, sc), (x + 70, y))
-            self.draw_bar(x + 110, y + 2, 200, 14, robot.current_speed, robot.base_speed, color)  # Speed bar
+            self.draw_bar(x + 110, y + 2, 200, 14, robot.current_speed, robot.base_speed, color)
             # Battery percentage
             if self.bm:
                 bat_pct = f"{int(self.bm.batteries[robot.id])}%"
                 bat_color = self.bm.get_battery_color(robot.id)
                 bat_s = self.f_tiny.render(bat_pct, True, bat_color)
                 self.screen.blit(bat_s, (x + 320, y + 2))
-            y += 24  # More spacing
+            y += 20
         
-        y += 6
+        y += 4
         pygame.draw.line(self.screen, (50, 50, 80), (sx + 10, y), (WINDOW_W - 10, y))
-        y += 10
+        y += 8
         
-        # Congestion hotspots
-        self.screen.blit(self.f_med.render("TOP CONGESTION", True, TEXT_SECONDARY), (x, y))
-        y += 20
+        # Congestion hotspots - COMPACT
+        self.screen.blit(self.f_small.render("TOP CONGESTION", True, TEXT_SECONDARY), (x, y))
+        y += 16
         for u, v, score in self.hm.get_congestion_hotspots()[:4]:
-            self.screen.blit(self.f_small.render(f"Lane {u}→{v}", True, TEXT_PRIMARY), (x, y))
-            self.draw_bar(x + 90, y + 2, 200, 12, score, 1.0, self.hm.get_heatmap_color(u, v))
-            self.screen.blit(self.f_tiny.render(f"{score:.2f}", True, TEXT_SECONDARY), (x + 296, y))
-            y += 19
+            self.screen.blit(self.f_tiny.render(f"Lane {u}→{v}", True, TEXT_PRIMARY), (x, y))
+            self.draw_bar(x + 70, y + 2, 180, 10, score, 1.0, self.hm.get_heatmap_color(u, v))
+            self.screen.blit(self.f_tiny.render(f"{score:.2f}", True, TEXT_SECONDARY), (x + 256, y))
+            y += 16
         
-        y += 6
+        y += 4
         pygame.draw.line(self.screen, (50, 50, 80), (sx + 10, y), (WINDOW_W - 10, y))
-        y += 10
+        y += 8
         
-        # Throughput graph
-        self.screen.blit(self.f_med.render("THROUGHPUT", True, TEXT_SECONDARY), (x, y))
-        y += 18
-        gh, gw = 55, 390
+        # Throughput graph - COMPACT
+        self.screen.blit(self.f_small.render("THROUGHPUT", True, TEXT_SECONDARY), (x, y))
+        y += 14
+        gh, gw = 50, 390
         pygame.draw.rect(self.screen, (28, 28, 50), (x, y, gw, gh), border_radius=4)
         hist = self.tc.throughput_history[-50:]
         if len(hist) >= 2:
@@ -736,25 +755,14 @@ class Simulator:
         
         y += gh + 8
         
-        # Manual mode deadlock demo button
-        if self.mode == "manual":
-            btn_rect = pygame.Rect(MAP_W+16, y, WINDOW_W-MAP_W-32, 30)
-            hover = btn_rect.collidepoint(pygame.mouse.get_pos())
-            color = (180,50,50) if hover else (120,30,30)
-            pygame.draw.rect(self.screen, color, btn_rect, border_radius=6)
-            btn_txt = self.f_small.render("Force Deadlock Demo", True, (255,255,255))
-            self.screen.blit(btn_txt, (btn_rect.centerx - btn_txt.get_width()//2, btn_rect.y + 7))
-            self.deadlock_demo_btn = btn_rect
-            y += 38
-        
         # Manual mode instructions OR auto mode legend
         if self.mode == "manual":
             self.draw_manual_instructions()
         else:
             pygame.draw.line(self.screen, (50, 50, 80), (sx + 10, y), (WINDOW_W - 10, y))
-            y += 8
-            self.screen.blit(self.f_med.render("LANE LEGEND", True, TEXT_SECONDARY), (x, y))
-            y += 18
+            y += 6
+            self.screen.blit(self.f_small.render("LANE LEGEND", True, TEXT_SECONDARY), (x, y))
+            y += 14
             for col, name in [
                 ((180, 60, 255), "Critical"),
                 ((255, 180, 60), "Human Zone"),
@@ -762,9 +770,34 @@ class Simulator:
                 ((60, 220, 180), "Intersection"),
                 ((55, 55, 90), "Normal")
             ]:
-                pygame.draw.rect(self.screen, col, (x, y + 3, 22, 8), border_radius=2)
-                self.screen.blit(self.f_tiny.render(name, True, TEXT_SECONDARY), (x + 28, y))
-                y += 16
+                pygame.draw.rect(self.screen, col, (x, y + 3, 18, 6), border_radius=2)
+                self.screen.blit(self.f_tiny.render(name, True, TEXT_SECONDARY), (x + 24, y))
+                y += 13
+        
+        # Reset clip
+        self.screen.set_clip(None)
+        
+        # Force Deadlock Demo Button - FIXED POSITION at bottom
+        if self.mode == "manual":
+            btn_y = WINDOW_H - 150  # Fixed 150px from bottom
+            btn_w = WINDOW_W - MAP_W - 20
+            self.deadlock_btn = pygame.Rect(MAP_W + 10, btn_y, btn_w, 36)
+            
+            mouse_pos = pygame.mouse.get_pos()
+            btn_hover = self.deadlock_btn.collidepoint(mouse_pos)
+            
+            # Button background
+            btn_color = (200, 50, 50) if btn_hover else (140, 30, 30)
+            pygame.draw.rect(self.screen, btn_color, self.deadlock_btn, border_radius=6)
+            
+            # Button border
+            pygame.draw.rect(self.screen, (255, 80, 80), self.deadlock_btn, border_radius=6, width=2)
+            
+            # Button text
+            btn_txt = self.f_small.render("FORCE DEADLOCK DEMO", True, (255, 255, 255))
+            self.screen.blit(btn_txt, (
+                self.deadlock_btn.centerx - btn_txt.get_width() // 2,
+                self.deadlock_btn.y + 10))
     
     def draw_map_panel(self):
         """Draw the main map panel."""
@@ -879,9 +912,12 @@ class Simulator:
                             if event.key == getattr(pygame, key_attr) and i < len(self.robots):
                                 self.selected_robot = self.robots[i]
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if self.mode == "manual" and hasattr(self, 'deadlock_demo_btn'):
-                    if self.deadlock_demo_btn.collidepoint(pygame.mouse.get_pos()):
-                        self.trigger_deadlock_demo = True
+                if self.mode == "manual" and hasattr(self, 'deadlock_btn') and self.deadlock_btn is not None:
+                    if self.deadlock_btn.collidepoint(event.pos):
+                        # Only trigger if not already pending
+                        if not self.force_deadlock_requested:
+                            self.force_deadlock_requested = True
+                        return True
         return True
     
     def render(self):
@@ -896,7 +932,11 @@ class Simulator:
         if not self.handle_events():
             return False
         self.render()
-        self.clock.tick(60)
+        # Auto mode uses 30 FPS, manual uses 60 FPS
+        if self.mode == "auto":
+            self.clock.tick(30)
+        else:
+            self.clock.tick(60)
         return not self.paused
     
     def update_step(self, step):

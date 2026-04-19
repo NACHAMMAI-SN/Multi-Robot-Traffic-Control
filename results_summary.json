@@ -1,296 +1,492 @@
 {
-  "timestamp": "2026-04-19T16:19:01.681509",
-  "simulation_steps": 85,
-  "scenario": "emergency",
-  "mode": "auto",
-  "total_robots": 10,
-  "robots_completed": 10,
-  "completion_rate": "10/10",
+  "timestamp": "2026-04-19T20:25:12.171792",
+  "simulation_steps": 1062,
+  "scenario": "night_shift",
+  "mode": "manual",
+  "total_robots": 8,
+  "robots_completed": 4,
+  "completion_rate": "4/8",
   "metrics": {
-    "total_steps": 85,
-    "deadlocks_resolved": 0,
-    "avg_delay_per_robot": 33.0,
-    "throughput": 0.1176,
-    "robots_completed": 10,
-    "total_robots": 10,
-    "conflict_log": [],
+    "total_steps": 1062,
+    "deadlocks_resolved": 3,
+    "avg_delay_per_robot": 153.67,
+    "throughput": 0.0038,
+    "robots_completed": 4,
+    "total_robots": 8,
+    "conflict_log": [
+      {
+        "step": 100,
+        "type": "deadlock_resolved",
+        "cycle": [
+          "R1",
+          "R0"
+        ],
+        "victim": "R1"
+      },
+      {
+        "step": 695,
+        "type": "deadlock_resolved",
+        "cycle": [
+          "R3",
+          "R2"
+        ],
+        "victim": "R3"
+      },
+      {
+        "step": 915,
+        "type": "deadlock_resolved",
+        "cycle": [
+          "R4",
+          "R3"
+        ],
+        "victim": "R4"
+      }
+    ],
     "throughput_history": [
       0,
       0,
       0,
       0,
-      3,
-      5,
-      8,
-      9
-    ]
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "manual_completions": {
+      "R0": 1,
+      "R1": 2,
+      "R2": 0,
+      "R3": 0,
+      "R4": 0,
+      "R5": 1,
+      "R6": 1,
+      "R7": 0
+    }
   },
   "heatmap_stats": {
-    "total_traversals": 34,
+    "total_traversals": 27,
     "hotspots": [
+      [
+        5,
+        6,
+        0.5080471895621705
+      ],
       [
         6,
         10,
-        0.5069314718055995
+        0.5080471895621705
       ],
       [
-        8,
-        12,
+        1,
+        5,
         0.5069314718055995
       ],
       [
         10,
-        14,
-        0.5069314718055995
+        11,
+        0.5054930614433405
       ],
       [
-        12,
-        16,
-        0.5069314718055995
-      ],
-      [
-        13,
-        17,
-        0.5069314718055995
+        11,
+        15,
+        0.5054930614433405
       ]
     ],
     "step_history": [
       {
-        "step": 10,
+        "step": 970,
         "hotspots": [
           [
-            0,
-            4,
-            0.5
+            5,
+            6,
+            0.5080471895621705
+          ],
+          [
+            6,
+            10,
+            0.5080471895621705
           ],
           [
             1,
             5,
-            0.5
+            0.5069314718055995
           ],
           [
-            2,
-            6,
-            0.5
+            10,
+            11,
+            0.5054930614433405
           ],
           [
-            3,
-            7,
-            0.5
-          ],
-          [
-            4,
-            8,
-            0.5
+            11,
+            15,
+            0.5054930614433405
           ]
         ]
       },
       {
-        "step": 20,
+        "step": 980,
         "hotspots": [
           [
-            0,
-            4,
-            0.5
+            5,
+            6,
+            0.5080471895621705
+          ],
+          [
+            6,
+            10,
+            0.5080471895621705
           ],
           [
             1,
             5,
-            0.5
+            0.5069314718055995
           ],
           [
-            2,
-            6,
-            0.5
+            10,
+            11,
+            0.5054930614433405
           ],
           [
-            3,
-            7,
-            0.5
-          ],
-          [
-            4,
-            8,
-            0.5
+            11,
+            15,
+            0.5054930614433405
           ]
         ]
       },
       {
-        "step": 30,
+        "step": 990,
         "hotspots": [
           [
-            0,
-            4,
-            0.5
+            5,
+            6,
+            0.5080471895621705
+          ],
+          [
+            6,
+            10,
+            0.5080471895621705
           ],
           [
             1,
             5,
-            0.5
-          ],
-          [
-            2,
-            6,
-            0.5
-          ],
-          [
-            3,
-            7,
-            0.5
-          ],
-          [
-            4,
-            8,
-            0.5
-          ]
-        ]
-      },
-      {
-        "step": 40,
-        "hotspots": [
-          [
-            2,
-            6,
-            0.5034657359027997
-          ],
-          [
-            6,
-            10,
-            0.5034657359027997
-          ],
-          [
-            7,
-            11,
-            0.5034657359027997
+            0.5069314718055995
           ],
           [
             10,
-            14,
-            0.5034657359027997
-          ],
-          [
-            0,
-            4,
-            0.5
-          ]
-        ]
-      },
-      {
-        "step": 50,
-        "hotspots": [
-          [
-            6,
-            10,
-            0.5054930614433405
-          ],
-          [
-            7,
             11,
             0.5054930614433405
           ],
           [
-            10,
-            14,
+            11,
+            15,
             0.5054930614433405
-          ],
-          [
-            0,
-            4,
-            0.5034657359027997
-          ],
-          [
-            2,
-            6,
-            0.5034657359027997
           ]
         ]
       },
       {
-        "step": 60,
+        "step": 1000,
         "hotspots": [
           [
-            4,
-            8,
-            0.5054930614433405
+            5,
+            6,
+            0.5080471895621705
           ],
           [
             6,
             10,
-            0.5054930614433405
+            0.5080471895621705
           ],
           [
-            7,
+            1,
+            5,
+            0.5069314718055995
+          ],
+          [
+            10,
             11,
             0.5054930614433405
           ],
           [
-            8,
-            12,
-            0.5054930614433405
-          ],
-          [
-            9,
-            13,
+            11,
+            15,
             0.5054930614433405
           ]
         ]
       },
       {
-        "step": 70,
+        "step": 1010,
         "hotspots": [
+          [
+            5,
+            6,
+            0.5080471895621705
+          ],
           [
             6,
             10,
+            0.5080471895621705
+          ],
+          [
+            1,
+            5,
             0.5069314718055995
           ],
           [
-            8,
-            12,
-            0.5069314718055995
-          ],
-          [
-            4,
-            8,
-            0.5054930614433405
-          ],
-          [
-            7,
+            10,
             11,
             0.5054930614433405
           ],
           [
-            9,
-            13,
+            11,
+            15,
             0.5054930614433405
           ]
         ]
       },
       {
-        "step": 80,
+        "step": 1020,
         "hotspots": [
+          [
+            5,
+            6,
+            0.5080471895621705
+          ],
           [
             6,
             10,
-            0.5069314718055995
+            0.5080471895621705
           ],
           [
-            8,
-            12,
+            1,
+            5,
             0.5069314718055995
           ],
           [
             10,
-            14,
+            11,
+            0.5054930614433405
+          ],
+          [
+            11,
+            15,
+            0.5054930614433405
+          ]
+        ]
+      },
+      {
+        "step": 1030,
+        "hotspots": [
+          [
+            5,
+            6,
+            0.5080471895621705
+          ],
+          [
+            6,
+            10,
+            0.5080471895621705
+          ],
+          [
+            1,
+            5,
             0.5069314718055995
           ],
           [
-            12,
-            16,
+            10,
+            11,
+            0.5054930614433405
+          ],
+          [
+            11,
+            15,
+            0.5054930614433405
+          ]
+        ]
+      },
+      {
+        "step": 1040,
+        "hotspots": [
+          [
+            5,
+            6,
+            0.5080471895621705
+          ],
+          [
+            6,
+            10,
+            0.5080471895621705
+          ],
+          [
+            1,
+            5,
             0.5069314718055995
           ],
           [
-            4,
-            8,
+            10,
+            11,
+            0.5054930614433405
+          ],
+          [
+            11,
+            15,
+            0.5054930614433405
+          ]
+        ]
+      },
+      {
+        "step": 1050,
+        "hotspots": [
+          [
+            5,
+            6,
+            0.5080471895621705
+          ],
+          [
+            6,
+            10,
+            0.5080471895621705
+          ],
+          [
+            1,
+            5,
+            0.5069314718055995
+          ],
+          [
+            10,
+            11,
+            0.5054930614433405
+          ],
+          [
+            11,
+            15,
+            0.5054930614433405
+          ]
+        ]
+      },
+      {
+        "step": 1060,
+        "hotspots": [
+          [
+            5,
+            6,
+            0.5080471895621705
+          ],
+          [
+            6,
+            10,
+            0.5080471895621705
+          ],
+          [
+            1,
+            5,
+            0.5069314718055995
+          ],
+          [
+            10,
+            11,
+            0.5054930614433405
+          ],
+          [
+            11,
+            15,
             0.5054930614433405
           ]
         ]
@@ -300,265 +496,222 @@
   "trajectories": {
     "R0": [
       {
-        "node": 4,
-        "step": 49
+        "node": 1,
+        "step": 112
       },
       {
-        "node": 8,
-        "step": 60
+        "node": 5,
+        "step": 171
       },
       {
-        "node": 12,
-        "step": 68
+        "node": 6,
+        "step": 176
       },
       {
-        "node": 16,
-        "step": 76
+        "node": 10,
+        "step": 183
+      },
+      {
+        "node": 11,
+        "step": 190
+      },
+      {
+        "node": 15,
+        "step": 195
+      },
+      {
+        "node": 19,
+        "step": 205
       }
     ],
     "R1": [
       {
         "node": 5,
-        "step": 56
+        "step": 104
       },
       {
         "node": 6,
-        "step": 62
+        "step": 119
       },
       {
         "node": 10,
-        "step": 69
+        "step": 126
       },
       {
-        "node": 14,
-        "step": 74
+        "node": 11,
+        "step": 131
       },
       {
-        "node": 13,
-        "step": 77
+        "node": 15,
+        "step": 135
+      },
+      {
+        "node": 19,
+        "step": 145
+      },
+      {
+        "node": 18,
+        "step": 155
       },
       {
         "node": 17,
-        "step": 85
+        "step": 1048
       }
     ],
     "R2": [
       {
         "node": 6,
-        "step": 38
+        "step": 699
       },
       {
         "node": 10,
-        "step": 45
-      },
-      {
-        "node": 14,
-        "step": 50
-      },
-      {
-        "node": 18,
-        "step": 58
+        "step": 706
       }
     ],
     "R3": [
       {
-        "node": 7,
-        "step": 43
+        "node": 2,
+        "step": 706
       },
       {
-        "node": 11,
-        "step": 50
+        "node": 1,
+        "step": 714
       },
       {
-        "node": 15,
-        "step": 55
+        "node": 5,
+        "step": 719
       },
       {
-        "node": 19,
-        "step": 63
+        "node": 6,
+        "step": 801
+      },
+      {
+        "node": 5,
+        "step": 896
+      },
+      {
+        "node": 6,
+        "step": 921
       }
     ],
     "R4": [
       {
-        "node": 8,
-        "step": 46
-      },
-      {
-        "node": 12,
-        "step": 55
-      },
-      {
-        "node": 16,
-        "step": 63
+        "node": 5,
+        "step": 923
       }
     ],
     "R5": [
       {
         "node": 9,
-        "step": 53
-      },
-      {
-        "node": 13,
-        "step": 60
-      },
-      {
-        "node": 17,
-        "step": 68
+        "step": 54
       }
     ],
     "R6": [
       {
         "node": 10,
-        "step": 35
+        "step": 75
       },
       {
         "node": 14,
-        "step": 38
-      },
-      {
-        "node": 18,
-        "step": 45
+        "step": 79
       }
     ],
-    "R7": [
-      {
-        "node": 11,
-        "step": 40
-      },
-      {
-        "node": 15,
-        "step": 43
-      },
-      {
-        "node": 19,
-        "step": 50
-      }
-    ],
-    "R8": [
-      {
-        "node": 12,
-        "step": 43
-      },
-      {
-        "node": 16,
-        "step": 50
-      }
-    ],
-    "R9": [
-      {
-        "node": 13,
-        "step": 48
-      },
-      {
-        "node": 17,
-        "step": 55
-      }
-    ]
+    "R7": []
   },
   "robot_summary": [
     {
       "id": "R0",
       "start": 0,
       "goal": 19,
-      "status": "GOAL_REACHED",
-      "replan_count": 3,
-      "steps_waiting": 4,
-      "goal_reached_step": 76
+      "status": "IDLE",
+      "replan_count": 6,
+      "steps_waiting": 0,
+      "goal_reached_step": 205
     },
     {
       "id": "R1",
       "start": 1,
       "goal": 18,
-      "status": "GOAL_REACHED",
-      "replan_count": 3,
+      "status": "IDLE",
+      "replan_count": 5,
       "steps_waiting": 0,
-      "goal_reached_step": 85
+      "goal_reached_step": 1048
     },
     {
       "id": "R2",
       "start": 2,
       "goal": 17,
-      "status": "GOAL_REACHED",
-      "replan_count": 1,
-      "steps_waiting": 8,
-      "goal_reached_step": 58
+      "status": "EMERGENCY_STOP",
+      "replan_count": 13,
+      "steps_waiting": 5,
+      "goal_reached_step": null
     },
     {
       "id": "R3",
       "start": 3,
       "goal": 16,
-      "status": "GOAL_REACHED",
-      "replan_count": 1,
-      "steps_waiting": 8,
-      "goal_reached_step": 63
+      "status": "WAITING",
+      "replan_count": 20,
+      "steps_waiting": 4,
+      "goal_reached_step": null
     },
     {
       "id": "R4",
       "start": 4,
       "goal": 15,
-      "status": "GOAL_REACHED",
-      "replan_count": 1,
-      "steps_waiting": 10,
-      "goal_reached_step": 63
+      "status": "WAITING",
+      "replan_count": 11,
+      "steps_waiting": 9,
+      "goal_reached_step": null
     },
     {
       "id": "R5",
       "start": 5,
       "goal": 14,
-      "status": "GOAL_REACHED",
+      "status": "IDLE",
       "replan_count": 1,
-      "steps_waiting": 8,
-      "goal_reached_step": 68
+      "steps_waiting": 0,
+      "goal_reached_step": 54
     },
     {
       "id": "R6",
       "start": 6,
       "goal": 13,
-      "status": "GOAL_REACHED",
-      "replan_count": 0,
+      "status": "IDLE",
+      "replan_count": 1,
       "steps_waiting": 0,
-      "goal_reached_step": 45
+      "goal_reached_step": 79
     },
     {
       "id": "R7",
       "start": 7,
       "goal": 12,
-      "status": "GOAL_REACHED",
-      "replan_count": 0,
-      "steps_waiting": 0,
-      "goal_reached_step": 50
-    },
-    {
-      "id": "R8",
-      "start": 8,
-      "goal": 11,
-      "status": "GOAL_REACHED",
-      "replan_count": 0,
-      "steps_waiting": 0,
-      "goal_reached_step": 50
-    },
-    {
-      "id": "R9",
-      "start": 9,
-      "goal": 10,
-      "status": "GOAL_REACHED",
-      "replan_count": 0,
-      "steps_waiting": 0,
-      "goal_reached_step": 55
+      "status": "WAITING",
+      "replan_count": 2,
+      "steps_waiting": 14,
+      "goal_reached_step": null
     }
   ],
+  "manual_completions": {
+    "R0": 1,
+    "R1": 2,
+    "R2": 0,
+    "R3": 0,
+    "R4": 0,
+    "R5": 1,
+    "R6": 1,
+    "R7": 0
+  },
   "battery_stats": {
     "final_batteries": {
-      "R0": 71.04999999999994,
-      "R1": 64.99999999999997,
-      "R2": 74.25000000000001,
-      "R3": 100.0,
-      "R4": 79.15000000000003,
-      "R5": 77.50000000000004,
-      "R6": 84.50000000000009,
-      "R7": 100.0,
-      "R8": 88.0000000000001,
-      "R9": 87.75000000000011
+      "R0": 57.20000000000243,
+      "R1": 32.40000000000249,
+      "R2": 0.0,
+      "R3": 13.29999999999951,
+      "R4": 9.550000000002612,
+      "R5": 25.250000000002533,
+      "R6": 18.500000000002053,
+      "R7": 100.0
     },
     "charging_stations": [
       3,
@@ -566,7 +719,9 @@
       11,
       15
     ],
-    "robots_that_charged": []
+    "robots_that_charged": [
+      "R7"
+    ]
   },
-  "heatmap_file": "heatmap_emergency.png"
+  "heatmap_file": "heatmap_night_shift.png"
 }

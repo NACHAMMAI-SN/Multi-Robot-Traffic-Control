@@ -31,6 +31,7 @@ class Robot:
         self.steps_waiting = 0
         self.goal_reached_step = None
         self.start_delay = 0  # Staggered start delay
+        self.stuck_replan_threshold = 15  # Auto-replan after this many waiting steps
     
     def compute_path(self, avoid_nodes=None):
         """Compute path from current node to goal using A* algorithm."""
@@ -157,7 +158,7 @@ class Robot:
                 return "waiting"  # Wait one step after replanning
         
         # Force replan if stuck waiting too long
-        if self.steps_waiting > 15:
+        if self.steps_waiting > self.stuck_replan_threshold:
             # Try to avoid currently occupied nodes
             occupied = [r.current_node for r in all_robots 
                        if r.id != self.id and r.status != RobotStatus.GOAL_REACHED]
@@ -194,6 +195,8 @@ class Robot:
             if blocking_robot and blocking_robot.status in (RobotStatus.WAITING, RobotStatus.EMERGENCY_STOP, RobotStatus.IDLE):
                 self.status = RobotStatus.WAITING
                 self.steps_waiting += 1
+                # Record wait-for relationship for deadlock detection
+                traffic_controller.wait_for_graph[self.id] = blocking_robot.id
                 return "waiting"
             else:
                 # Only emergency stop if blocker is actively moving

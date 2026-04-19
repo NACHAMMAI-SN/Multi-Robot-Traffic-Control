@@ -125,7 +125,7 @@ class TrafficController:
             "victim": victim
         })
     
-    def step(self, all_robot_positions):
+    def step(self, all_robot_positions, force_deadlock_check=False):
         """Execute one step of traffic control."""
         self.step_count += 1
         from src.robots.robot import RobotStatus
@@ -135,8 +135,8 @@ class TrafficController:
             if robot.status in (RobotStatus.WAITING, RobotStatus.EMERGENCY_STOP):
                 self.total_delays[robot.id] += 1
         
-        # Check for deadlocks every 5 steps
-        if self.step_count % 5 == 0:
+        # Check for deadlocks every 5 steps (or every step if forced)
+        if force_deadlock_check or self.step_count % 5 == 0:
             cycles = self.detect_deadlock()
             for cycle in cycles:
                 self.resolve_deadlock(cycle)

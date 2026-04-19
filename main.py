@@ -42,10 +42,10 @@ ROBOT_COLORS = [
 
 # Demo deadlock pairs - robots heading directly at each other
 DEMO_DEADLOCK_PAIRS = [
-    (0, 19), (19, 0),
-    (1, 18), (18, 1),
-    (2, 17), (17, 2),
-    (3, 16), (16, 3),
+    (4, 7), (7, 4),  # Meet on critical lane 5-6
+    (8, 11), (11, 8),  # Meet on critical intersection lanes
+    (2, 6), (6, 2),
+    (3, 7), (7, 3),
 ]
 
 
@@ -88,19 +88,33 @@ def run_simulation(headless=False, max_steps=1000, num_robots=8, mode="auto", sl
 
     # Override for demo deadlock mode
     if demo_deadlock:
-        # Override pairs to force head-on collisions
-        pairs = DEMO_DEADLOCK_PAIRS[:num_robots]
+        # Use ONLY 2 robots for guaranteed collision
+        num_robots = 2
+        pairs = DEMO_DEADLOCK_PAIRS[:2]  # (0→19) and (19→0)
         robots = []
         for i, (start, goal) in enumerate(pairs):
             color = ROBOT_COLORS[i % len(ROBOT_COLORS)]
             r = Robot(f"R{i}", start, goal, lane_graph, color)
-            r.compute_path()
+            success = r.compute_path()
+            if not success or not r.path:
+                print(f"WARNING: Could not compute path for R{i} from {start} to {goal}!")
+                print(f"  Graph has edge {start}->{goal}? {lane_graph.graph.has_edge(start, goal)}")
+                print(f"  Graph has edge {goal}->{start}? {lane_graph.graph.has_edge(goal, start)}")
             tc.register_robot(r)
             robots.append(r)
-            logging.info(f"DEMO DEADLOCK - R{i}: {start}→{goal} path={r.path}")
+            logging.info(f"DEMO DEADLOCK - R{i}: {start}->{goal} path={r.path}")
+        
         # Remove staggered starts - all start together
         for r in robots:
             r.start_delay = 0
+            r.status = RobotStatus.IDLE  # Make sure they're active
+        
+        # Disable auto-replanning to let deadlock form
+        for r in robots:
+            r.stuck_replan_threshold = 9999
+        
+        print(f"R0: {robots[0].current_node}->{robots[0].goal_node}, path: {robots[0].path}")
+        print(f"R1: {robots[1].current_node}->{robots[1].goal_node}, path: {robots[1].path}")
 
     # Apply scenario modifications
     sm = ScenarioManager()
@@ -147,8 +161,7 @@ def run_simulation(headless=False, max_steps=1000, num_robots=8, mode="auto", sl
     sim = None
     if not headless:
         sim = Simulator(lane_graph, robots, tc, heatmap, existing_screen=existing_screen,
-                       battery_manager=battery_manager, scenario=scenario, max_steps=max_steps)
-        sim.mode = mode
+                       battery_manager=battery_manager, scenario=scenario, max_steps=max_steps, mode=mode)
         sim.instruction_timer = 300
         if resume and start_step > 1:
             sim.add_notification(f"Resumed from checkpoint (Step {start_step - 1})! 💾", ACCENT)
@@ -207,8 +220,8 @@ def run_simulation(headless=False, max_steps=1000, num_robots=8, mode="auto", sl
             for lane, count in occupancy.items():
                 heatmap.set_occupancy(lane[0], lane[1], count)
 
-            # Traffic control step
-            tc.step(all_positions)
+            # Traffic control step (force deadlock check every step in demo mode)
+            tc.step(all_positions, force_deadlock_check=demo_deadlock)
             heatmap.snapshot(step)
             
             # Checkpoint save
@@ -219,8 +232,11 @@ def run_simulation(headless=False, max_steps=1000, num_robots=8, mode="auto", sl
                                        TEXT_SECONDARY, duration=90)
             
             # Slow motion for recording
-            if not headless and slow:
-                time.sleep(0.1)
+            if not headless and mode == "auto":
+                if slow:
+                    time.sleep(0.08)   # slower motion for --slow flag
+                else:
+                    time.sleep(0.03)   # default auto speed (more watchable)
 
             # Visual effects
             if sim:
@@ -236,8 +252,11 @@ def run_simulation(headless=False, max_steps=1000, num_robots=8, mode="auto", sl
                     for r in robots:
                         if r.status in (RobotStatus.WAITING, RobotStatus.EMERGENCY_STOP):
                             sim.add_effect("deadlock", r.current_node, 40)
-                    sim.add_notification("Deadlock detected and resolved! ⚠️", WARNING)
-                prev_deadlocks = tc.deadlocks_resolved
+                    print(f"DEADLOCK DETECTED AND RESOLVED! Total: {tc.deadlocks_resolved}")
+                    sim.add_notification(
+                        f"DEADLOCK RESOLVED! ({tc.deadlocks_resolved} total)",
+                        DANGER, duration=300)
+                    prev_deadlocks = tc.deadlocks_resolved
                 
                 for r in robots:
                     if r.emergency_flash_timer == 29:
@@ -269,196 +288,286 @@ def run_simulation(headless=False, max_steps=1000, num_robots=8, mode="auto", sl
         manual_completions = {r.id: 0 for r in robots}
         
         # INFINITE LOOP - only exits when user presses Q
-        while sim.running:
-            # Handle events manually to catch mouse clicks
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sim.running = False
-                    break
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:
+        try:
+            while sim.running:
+                # Handle events manually to catch mouse clicks
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
                         sim.running = False
                         break
-                    if event.key == pygame.K_SPACE:
-                        sim.paused = not sim.paused
-                    if event.key == pygame.K_h:
-                        sim.show_heatmap = not sim.show_heatmap
-                        if sim.show_heatmap:
-                            sim.add_notification("Heatmap ON - showing congestion", ACCENT)
-                        else:
-                            sim.add_notification("Heatmap OFF - showing lane types", ACCENT)
-                    if event.key == pygame.K_ESCAPE:
-                        sim.selected_robot = None
-                    if event.key == pygame.K_UP:
-                        sim.cam[1] += 20
-                    if event.key == pygame.K_DOWN:
-                        sim.cam[1] -= 20
-                    if event.key == pygame.K_LEFT:
-                        sim.cam[0] += 20
-                    if event.key == pygame.K_RIGHT:
-                        sim.cam[0] -= 20
-                    for i in range(8):
-                        key_attr = f"K_{i+1}"
-                        if hasattr(pygame, key_attr):
-                            if event.key == getattr(pygame, key_attr) and i < len(robots):
-                                sim.selected_robot = robots[i]
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_q:
+                            sim.running = False
+                            break
+                        if event.key == pygame.K_SPACE:
+                            sim.paused = not sim.paused
+                        if event.key == pygame.K_h:
+                            sim.show_heatmap = not sim.show_heatmap
+                            if sim.show_heatmap:
+                                sim.add_notification("Heatmap ON - showing congestion", ACCENT)
+                            else:
+                                sim.add_notification("Heatmap OFF - showing lane types", ACCENT)
+                        if event.key == pygame.K_ESCAPE:
+                            sim.selected_robot = None
+                        if event.key == pygame.K_UP:
+                            sim.cam[1] += 20
+                        if event.key == pygame.K_DOWN:
+                            sim.cam[1] -= 20
+                        if event.key == pygame.K_LEFT:
+                            sim.cam[0] += 20
+                        if event.key == pygame.K_RIGHT:
+                            sim.cam[0] -= 20
+                        for i in range(8):
+                            key_attr = f"K_{i+1}"
+                            if hasattr(pygame, key_attr):
+                                if event.key == getattr(pygame, key_attr) and i < len(robots):
+                                    sim.selected_robot = robots[i]
+                                    sim.add_notification(
+                                        f"{robots[i].id} selected! Click a node to assign goal",
+                                        WARNING)
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        # Check deadlock button first (in sidebar)
+                        button_clicked = False
+                        if hasattr(sim, 'deadlock_btn') and sim.deadlock_btn is not None:
+                            if sim.deadlock_btn.collidepoint(event.pos):
+                                sim.force_deadlock_requested = True
+                                button_clicked = True
+                        
+                        # Then check map clicks (only if button wasn't clicked)
+                        if not button_clicked and event.pos[0] < MAP_W:
+                            action, data = sim.handle_manual_click(event.pos)
+                            if action == "select_robot":
+                                sim.selected_robot = data
                                 sim.add_notification(
-                                    f"{robots[i].id} selected! Click a node to assign goal",
+                                    f"{data.id} selected! Click a node to assign goal",
                                     WARNING)
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    if event.pos[0] < MAP_W:
-                        action, data = sim.handle_manual_click(event.pos)
-                        if action == "select_robot":
-                            sim.selected_robot = data
+                            elif action == "assign_goal":
+                                robot, node = data
+                                
+                                # SAFETY WARNINGS - Check path before assignment
+                                try:
+                                    temp_path = nx.astar_path(
+                                        lane_graph.graph, 
+                                        robot.current_node,
+                                        node,
+                                        weight=lambda u,v,d: lane_graph.get_routing_weight(u,v)
+                                    )
+                                    
+                                    warnings = []
+                                    for i in range(len(temp_path)-1):
+                                        u, v = temp_path[i], temp_path[i+1]
+                                        meta = lane_graph.get_lane_metadata(u, v)
+                                        if meta:
+                                            lane_type = meta.get('lane_type')
+                                            safety = meta.get('safety_level')
+                                            if safety and safety.name == 'CRITICAL':
+                                                warnings.append(f"⚠️ Path crosses CRITICAL lane {u}→{v}!")
+                                            if lane_type and lane_type.name == 'HUMAN_ZONE':
+                                                warnings.append(f"🚶 Path enters HUMAN ZONE at lane {u}→{v}!")
+                                            if lane_type and lane_type.name == 'NARROW':
+                                                warnings.append(f"⚠️ Path uses NARROW lane {u}→{v}")
+                                    
+                                    # Check destination area congestion
+                                    for neighbor in lane_graph.graph.neighbors(node):
+                                        meta = lane_graph.get_lane_metadata(node, neighbor)
+                                        if meta and meta.get('congestion_score', 0) > 0.5:
+                                            warnings.append(f"⚠️ Node {node} area is congested!")
+                                            break
+                                    
+                                    # Show warnings or success
+                                    if warnings:
+                                        for w in warnings[:2]:  # Max 2 warnings
+                                            sim.add_notification(w, WARNING, duration=240)
+                                    else:
+                                        sim.add_notification(f"{robot.id} → Node {node}: Safe path! ✓", SUCCESS)
+                                except:
+                                    pass
+                                
+                                # Assign goal
+                                old_goal = robot.goal_node
+                                robot.goal_node = node
+                                robot.replan_path()
+                                robot.status = RobotStatus.IDLE
+                                sim.target_nodes[robot.id] = node
+                                sim.assigned_robots.add(robot.id)
+                                sim.add_notification(
+                                    f"{robot.id} assigned to Node {node}! Navigating...",
+                                    SUCCESS)
+                                
+                                # Check if all 8 assigned for first time
+                                if len(sim.assigned_robots) == 8 and prev_assigned_count < 8:
+                                    sim.add_notification("All robots assigned! Great coordination! 🎉", SUCCESS, duration=240)
+                                prev_assigned_count = len(sim.assigned_robots)
+                
+                if not sim.running:
+                    break
+                if sim.paused:
+                    sim.render()
+                    sim.clock.tick(60)
+                    continue
+                
+                # ---- Force Deadlock Handler ----
+                if getattr(sim, 'force_deadlock_requested', False):
+                    sim.force_deadlock_requested = False
+                    try:
+                        moving = [
+                            r for r in robots
+                            if r.status in (
+                                RobotStatus.MOVING,
+                                RobotStatus.WAITING,
+                                RobotStatus.IDLE)
+                            and r.goal_node is not None
+                            and r.goal_node != r.current_node
+                            and r.path
+                            and len(r.path) > 1
+                        ]
+
+                        if len(moving) < 2:
                             sim.add_notification(
-                                f"{data.id} selected! Click a node to assign goal",
-                                WARNING)
-                        elif action == "assign_goal":
-                            robot, node = data
-                            
-                            # SAFETY WARNINGS - Check path before assignment
-                            try:
-                                temp_path = nx.astar_path(
-                                    lane_graph.graph, 
-                                    robot.current_node,
-                                    node,
-                                    weight=lambda u,v,d: lane_graph.get_routing_weight(u,v)
-                                )
-                                
-                                warnings = []
-                                for i in range(len(temp_path)-1):
-                                    u, v = temp_path[i], temp_path[i+1]
-                                    meta = lane_graph.get_lane_metadata(u, v)
-                                    if meta:
-                                        lane_type = meta.get('lane_type')
-                                        safety = meta.get('safety_level')
-                                        if safety and safety.name == 'CRITICAL':
-                                            warnings.append(f"⚠️ Path crosses CRITICAL lane {u}→{v}!")
-                                        if lane_type and lane_type.name == 'HUMAN_ZONE':
-                                            warnings.append(f"🚶 Path enters HUMAN ZONE at lane {u}→{v}!")
-                                        if lane_type and lane_type.name == 'NARROW':
-                                            warnings.append(f"⚠️ Path uses NARROW lane {u}→{v}")
-                                
-                                # Check destination area congestion
-                                for neighbor in lane_graph.graph.neighbors(node):
-                                    meta = lane_graph.get_lane_metadata(node, neighbor)
-                                    if meta and meta.get('congestion_score', 0) > 0.5:
-                                        warnings.append(f"⚠️ Node {node} area is congested!")
-                                        break
-                                
-                                # Show warnings or success
-                                if warnings:
-                                    for w in warnings[:2]:  # Max 2 warnings
-                                        sim.add_notification(w, WARNING, duration=240)
-                                else:
-                                    sim.add_notification(f"{robot.id} → Node {node}: Safe path! ✓", SUCCESS)
-                            except:
-                                pass
-                            
-                            # Assign goal
-                            old_goal = robot.goal_node
-                            robot.goal_node = node
-                            robot.replan_path()
-                            robot.status = RobotStatus.IDLE
-                            sim.target_nodes[robot.id] = node
-                            sim.assigned_robots.add(robot.id)
+                                "Assign 2 robots with destinations first!",
+                                color=(255, 150, 0),
+                                duration=200)
+                        else:
+                            r0 = moving[0]
+                            r1 = moving[1]
+
+                            r0.stuck_replan_threshold = 50
+                            r1.stuck_replan_threshold = 50
+
+                            sim._demo_r0_id = r0.id
+                            sim._demo_r1_id = r1.id
+                            sim._demo_r0_goal = r0.goal_node
+                            sim._demo_r1_goal = r1.goal_node
+
+                            r0.goal_node = r1.current_node
+                            r1.goal_node = r0.current_node
+
+                            r0.replan_path()
+                            r1.replan_path()
+
+                            r0.status = RobotStatus.MOVING
+                            r1.status = RobotStatus.MOVING
+                            r0.steps_waiting = 0
+                            r1.steps_waiting = 0
+                            r0.emergency_flash_timer = 0
+                            r1.emergency_flash_timer = 0
+
+                            sim.target_nodes[r0.id] = r0.goal_node
+                            sim.target_nodes[r1.id] = r1.goal_node
+
                             sim.add_notification(
-                                f"{robot.id} assigned to Node {node}! Navigating...",
-                                SUCCESS)
-                            
-                            # Check if all 8 assigned for first time
-                            if len(sim.assigned_robots) == 8 and prev_assigned_count < 8:
-                                sim.add_notification("All robots assigned! Great coordination! 🎉", SUCCESS, duration=240)
-                            prev_assigned_count = len(sim.assigned_robots)
-            
-            if not sim.running:
-                break
-            if sim.paused:
+                                f"Demo: {r0.id} vs {r1.id}!",
+                                color=(255, 120, 0),
+                                duration=300)
+                    except Exception as e:
+                        import traceback
+                        traceback.print_exc()
+                # ---- End Force Deadlock Handler ----
+
+                # Move ALL robots that have assigned targets
+                all_positions = {r.id: r.current_node for r in robots}
+                for robot in robots:
+                    if robot.id in sim.target_nodes:
+                        # Start IDLE robots that have assignments
+                        if robot.status == RobotStatus.IDLE:
+                            robot.status = RobotStatus.MOVING
+                        # Move robots that aren't at goal
+                        if robot.status != RobotStatus.GOAL_REACHED:
+                            robot.move_step(robots, tc, heatmap, step)
+                
+                # Update batteries for all robots
+                for robot in robots:
+                    bat = battery_manager.update(robot, step)
+                    if battery_manager.is_dead(robot.id):
+                        robot.emergency_stop()
+                        sim.add_notification(f"{robot.id} battery DEAD! ☠️", DANGER)
+                
+                # Handle goal completion (after battery update)
+                for robot in robots:
+                    if robot.status == RobotStatus.GOAL_REACHED and robot.id in sim.target_nodes:
+
+                        # Skip demo robots — let deadlock handler restore them instead
+                        if robot.id in (
+                            getattr(sim, '_demo_r0_id', None),
+                            getattr(sim, '_demo_r1_id', None)):
+                            continue
+
+                        goal_node = sim.target_nodes[robot.id]
+                        sim.add_notification(f"{robot.id} reached Node {goal_node}! Assign new destination 🎯", SUCCESS, duration=240)
+                        sim.add_effect("goal", robot.current_node, 70)
+                        # Track completion for metrics
+                        manual_completions[robot.id] += 1
+                        # Reset robot for new assignment
+                        del sim.target_nodes[robot.id]
+                        sim.completed_trips.add(robot.id)
+                        robot.status = RobotStatus.IDLE
+                        robot.goal_reached_step = step
+
+                # Update occupancy
+                occupancy = {}
+                for robot in robots:
+                    lane = robot.get_current_lane()
+                    if lane:
+                        occupancy[lane] = occupancy.get(lane, 0) + 1
+                for lane, count in occupancy.items():
+                    heatmap.set_occupancy(lane[0], lane[1], count)
+
+                tc.step(all_positions)
+                heatmap.snapshot(step)
+                
+                # ---- Deadlock Resolved Handler ----
+                if tc.deadlocks_resolved > prev_deadlocks:
+                    prev_deadlocks = tc.deadlocks_resolved
+                    try:
+                        if hasattr(sim, '_demo_r0_id'):
+                            for r in robots:
+                                if r.id == sim._demo_r0_id:
+                                    r.goal_node = sim._demo_r0_goal
+                                    r.replan_path()
+                                    r.status = RobotStatus.MOVING
+                                    r.stuck_replan_threshold = 15
+                                    sim.target_nodes[r.id] = sim._demo_r0_goal
+                                elif r.id == sim._demo_r1_id:
+                                    r.goal_node = sim._demo_r1_goal
+                                    r.replan_path()
+                                    r.status = RobotStatus.MOVING
+                                    r.stuck_replan_threshold = 15
+                                    sim.target_nodes[r.id] = sim._demo_r1_goal
+
+                            del sim._demo_r0_id
+                            del sim._demo_r1_id
+                            del sim._demo_r0_goal
+                            del sim._demo_r1_goal
+
+                            sim.add_notification(
+                                "Deadlock Resolved! Robots back to original goals!",
+                                color=(50, 220, 100),
+                                duration=300)
+                    except Exception as e:
+                        import traceback
+                        traceback.print_exc()
+                # ---- End Deadlock Resolved Handler ----
+                
+                # Checkpoint save
+                if ckpt.should_save(step):
+                    ckpt.save(step, robots, tc, heatmap, battery_manager, mode, scenario)
+                    sim.add_notification(f"Checkpoint saved ✓ (Step {step})", 
+                                       TEXT_SECONDARY, duration=90)
+                
+                # Slow motion for recording
+                if slow:
+                    time.sleep(0.1)
+                
+                step += 1
+
+                sim.update_step(step)
                 sim.render()
                 sim.clock.tick(60)
-                continue
-            
-            # Check for deadlock demo trigger
-            if hasattr(sim, 'trigger_deadlock_demo') and sim.trigger_deadlock_demo:
-                sim.trigger_deadlock_demo = False
-                # Assign R0 and R1 to head directly at each other
-                if len(robots) >= 2:
-                    robots[0].goal_node = robots[1].current_node
-                    robots[0].replan_path()
-                    robots[1].goal_node = robots[0].current_node
-                    robots[1].replan_path()
-                    sim.target_nodes[robots[0].id] = robots[1].current_node
-                    sim.target_nodes[robots[1].id] = robots[0].current_node
-                    sim.add_notification(
-                        "Deadlock demo triggered! Watch R0 and R1 resolve it",
-                        WARNING, duration=240)
-
-            # Move ALL robots that have assigned targets
-            all_positions = {r.id: r.current_node for r in robots}
-            for robot in robots:
-                if robot.id in sim.target_nodes:
-                    # Start IDLE robots that have assignments
-                    if robot.status == RobotStatus.IDLE:
-                        robot.status = RobotStatus.MOVING
-                    # Move robots that aren't at goal
-                    if robot.status != RobotStatus.GOAL_REACHED:
-                        robot.move_step(robots, tc, heatmap, step)
-            
-            # Update batteries for all robots
-            for robot in robots:
-                bat = battery_manager.update(robot, step)
-                if battery_manager.is_dead(robot.id):
-                    robot.emergency_stop()
-                    sim.add_notification(f"{robot.id} battery DEAD! ☠️", DANGER)
-            
-            # Handle goal completion (after battery update)
-            for robot in robots:
-                if robot.status == RobotStatus.GOAL_REACHED and robot.id in sim.target_nodes:
-                    goal_node = sim.target_nodes[robot.id]
-                    sim.add_notification(f"{robot.id} reached Node {goal_node}! Assign new destination 🎯", SUCCESS, duration=240)
-                    sim.add_effect("goal", robot.current_node, 70)
-                    # Track completion for metrics
-                    manual_completions[robot.id] += 1
-                    # Reset robot for new assignment
-                    del sim.target_nodes[robot.id]
-                    sim.completed_trips.add(robot.id)
-                    robot.status = RobotStatus.IDLE
-                    robot.goal_reached_step = step
-
-            # Update occupancy
-            occupancy = {}
-            for robot in robots:
-                lane = robot.get_current_lane()
-                if lane:
-                    occupancy[lane] = occupancy.get(lane, 0) + 1
-            for lane, count in occupancy.items():
-                heatmap.set_occupancy(lane[0], lane[1], count)
-
-            tc.step(all_positions)
-            heatmap.snapshot(step)
-            
-            # Deadlock detection notification
-            if tc.deadlocks_resolved > prev_deadlocks:
-                sim.add_notification(
-                    "DEADLOCK DETECTED AND RESOLVED! Robot replanned automatically",
-                    DANGER, duration=300)
-                prev_deadlocks = tc.deadlocks_resolved
-            
-            # Checkpoint save
-            if ckpt.should_save(step):
-                ckpt.save(step, robots, tc, heatmap, battery_manager, mode, scenario)
-                sim.add_notification(f"Checkpoint saved ✓ (Step {step})", 
-                                   TEXT_SECONDARY, duration=90)
-            
-            # Slow motion for recording
-            if slow:
-                time.sleep(0.1)
-            
-            step += 1
-
-            sim.update_step(step)
-            sim.render()
-            sim.clock.tick(60)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            print(f"Manual loop error: {e}")
+            return "menu"  # go back to menu, not quit
     
     # ============================================================
     # METRICS CALCULATION AND PRINTING - RUNS FOR BOTH MODES
