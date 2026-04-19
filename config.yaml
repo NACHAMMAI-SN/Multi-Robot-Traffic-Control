@@ -1,0 +1,15 @@
+map:
+  width: 1200
+  height: 800
+  node_count: 20
+
+simulation:
+  num_robots: 8
+  fps: 60
+  step_interval: 0.5
+  max_steps: 1000
+
+robots:
+  max_speed: 5.0
+  emergency_stop_distance: 1
+  safe_following_distance: 2
