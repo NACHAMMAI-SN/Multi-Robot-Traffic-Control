@@ -569,8 +569,22 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    # Headless/test mode
-    if args.test or args.headless:
+    # Block 1: Test mode
+    if args.test:
+        print("Running 50-step test...")
+        run_simulation(
+            headless=True,
+            max_steps=50,
+            num_robots=8,
+            scenario="test",
+            resume=args.resume,
+            demo_deadlock=args.demo_deadlock
+        )
+        print("TEST PASSED")
+        sys.exit(0)
+    
+    # Block 2: Headless mode
+    if args.headless:
         # Determine max_steps - user flag always wins
         sm = ScenarioManager()
         scenario_default = sm.SCENARIOS.get(args.scenario, {}).get("max_steps", 1000)
@@ -584,33 +598,19 @@ if __name__ == "__main__":
         
         num_robots = sm.SCENARIOS.get(args.scenario, {}).get("robots", 8)
         
-        if args.test:
-            print("Running 50-step test...")
-            run_simulation(
-                headless=True,
-                max_steps=50,
-                num_robots=8,
-                scenario="test",
-                resume=args.resume,
-                demo_deadlock=args.demo_deadlock
-            )
-            print("TEST PASSED")
-            sys.exit(0)
-        else:
-            # Headless mode
-            run_simulation(
-                headless=True,
-                max_steps=final_steps,
-                num_robots=num_robots,
-                scenario=args.scenario,
-                resume=args.resume,
-                demo_deadlock=args.demo_deadlock
-            )
-            sys.exit(0)
+        run_simulation(
+            headless=True,
+            max_steps=final_steps,
+            num_robots=num_robots,
+            scenario=args.scenario,
+            resume=args.resume,
+            demo_deadlock=args.demo_deadlock
+        )
+        sys.exit(0)
 
-    # Init pygame once
+    # Block 3: GUI mode (everything else including --slow, --demo-deadlock, --resume, or no flags)
     pygame.init()
-    screen = pygame.display.set_mode((WINDOW_W, WINDOW_H), pygame.FULLSCREEN)
+    screen = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN)
     pygame.display.set_caption("Multi-Robot Traffic Control System")
     f_large = pygame.font.SysFont("arial", 26, bold=True)
     f_med   = pygame.font.SysFont("arial", 17, bold=True)
@@ -618,28 +618,40 @@ if __name__ == "__main__":
     lc = pygame.time.Clock()
 
     def show_main_menu():
+        SW, SH = screen.get_width(), screen.get_height()
+        scale = min(SW/1400, SH/800)
+        ox = int((SW - 1400*scale) / 2)
+        oy = int((SH - 800*scale) / 2)
+        
+        def get_mouse():
+            mx, my = pygame.mouse.get_pos()
+            return (int((mx-ox)/scale), int((my-oy)/scale))
+        
+        canvas = pygame.Surface((1400, 800))
         btn_auto   = pygame.Rect(200, 320, 400, 180)
         btn_manual = pygame.Rect(800, 320, 400, 180)
+        
         while True:
-            mp = pygame.mouse.get_pos()
+            mp = get_mouse()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit(); sys.exit(0)
+                    return "quit"
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_1: return "auto"
                     if event.key == pygame.K_2: return "manual"
                     if event.key == pygame.K_q:
-                        pygame.quit(); sys.exit(0)
+                        return "quit"
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if btn_auto.collidepoint(mp):   return "auto"
-                    if btn_manual.collidepoint(mp): return "manual"
+                    if event.button == 1:
+                        if btn_auto.collidepoint(mp):   return "auto"
+                        if btn_manual.collidepoint(mp): return "manual"
             
-            screen.fill((15, 15, 35))
+            canvas.fill((15, 15, 35))
             
             # Title
             t = f_large.render(
                 "Multi-Robot Traffic Control System", True, (120,200,255))
-            screen.blit(t, (WINDOW_W//2 - t.get_width()//2, 160))
+            canvas.blit(t, (700 - t.get_width()//2, 160))
             
             # Buttons
             for rect, label, sub, color, key in [
@@ -653,26 +665,43 @@ if __name__ == "__main__":
                 hover = rect.collidepoint(mp)
                 dark  = tuple(max(0, c//4) for c in color)
                 edge  = tuple(min(255,c+40) for c in color) if hover else color
-                pygame.draw.rect(screen, dark, rect, border_radius=14)
-                pygame.draw.rect(screen, edge, rect, border_radius=14, width=3)
+                pygame.draw.rect(canvas, dark, rect, border_radius=14)
+                pygame.draw.rect(canvas, edge, rect, border_radius=14, width=3)
                 l = f_large.render(label, True, (255,255,255))
                 s = f_small.render(sub,   True, (200,200,220))
                 k = f_med.render(f"[{key}]", True, edge)
-                screen.blit(l,(rect.centerx-l.get_width()//2, rect.y+30))
-                screen.blit(s,(rect.centerx-s.get_width()//2, rect.y+80))
-                screen.blit(k,(rect.centerx-k.get_width()//2, rect.y+125))
+                canvas.blit(l,(rect.centerx-l.get_width()//2, rect.y+30))
+                canvas.blit(s,(rect.centerx-s.get_width()//2, rect.y+80))
+                canvas.blit(k,(rect.centerx-k.get_width()//2, rect.y+125))
             
             # Hints
             h = f_small.render(
                 "[1] Auto Mode       [2] Manual Mode       [Q] Quit",
                 True, (150,150,180))
-            screen.blit(h, (WINDOW_W//2 - h.get_width()//2, WINDOW_H-50))
+            canvas.blit(h, (700 - h.get_width()//2, 750))
             
+            # Scale and blit to screen
+            scaled_w = int(1400 * scale)
+            scaled_h = int(800 * scale)
+            scaled = pygame.transform.scale(canvas, (scaled_w, scaled_h))
+            screen.fill((0, 0, 0))
+            screen.blit(scaled, (ox, oy))
             pygame.display.flip()
             lc.tick(60)
     
     def show_scenario_menu():
         """Show scenario selection menu."""
+        SW, SH = screen.get_width(), screen.get_height()
+        scale = min(SW/1400, SH/800)
+        ox = int((SW - 1400*scale) / 2)
+        oy = int((SH - 800*scale) / 2)
+        
+        def get_mouse():
+            mx, my = pygame.mouse.get_pos()
+            return (int((mx-ox)/scale), int((my-oy)/scale))
+        
+        canvas = pygame.Surface((1400, 800))
+        
         scenarios = [
             ("night_shift", "🌙 Night Shift",
              "8 robots | Maintenance lanes closed | Reduced speeds",
@@ -688,88 +717,100 @@ if __name__ == "__main__":
         btns = [pygame.Rect(100, 250 + i*160, 1200, 130) for i in range(3)]
         
         while True:
-            mp = pygame.mouse.get_pos()
+            mp = get_mouse()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return None
+                    return "quit"
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_1: return "night_shift"
                     if event.key == pygame.K_2: return "peak_hours"
                     if event.key == pygame.K_3: return "emergency"
-                    if event.key == pygame.K_q: return None
-                    if event.key == pygame.K_ESCAPE: return None
+                    if event.key == pygame.K_q: return "quit"
+                    if event.key == pygame.K_ESCAPE: return "quit"
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    for i, btn in enumerate(btns):
-                        if btn.collidepoint(mp):
-                            return scenarios[i][0]
+                    if event.button == 1:
+                        for i, btn in enumerate(btns):
+                            if btn.collidepoint(mp):
+                                return scenarios[i][0]
             
-            screen.fill((15, 15, 35))
+            canvas.fill((15, 15, 35))
             
             title = f_large.render("Choose Scenario", True, (120, 200, 255))
-            screen.blit(title, (700 - title.get_width()//2, 120))
+            canvas.blit(title, (700 - title.get_width()//2, 120))
             back = f_small.render("[ESC] Back to mode selection", True, (100, 100, 150))
-            screen.blit(back, (700 - back.get_width()//2, 170))
+            canvas.blit(back, (700 - back.get_width()//2, 170))
             
             for i, (key, name, desc, color, num) in enumerate(scenarios):
                 btn = btns[i]
                 hover = btn.collidepoint(mp)
                 dark = tuple(max(0, c//3) for c in color)
                 edge = tuple(min(255,c+50) for c in color) if hover else color
-                pygame.draw.rect(screen, dark, btn, border_radius=12)
-                pygame.draw.rect(screen, edge, btn, border_radius=12, width=3)
+                pygame.draw.rect(canvas, dark, btn, border_radius=12)
+                pygame.draw.rect(canvas, edge, btn, border_radius=12, width=3)
                 n = f_large.render(name, True, (255,255,255))
                 d = f_small.render(desc, True, (200,200,220))
                 k = f_med.render(f"[{num}]", True, edge)
-                screen.blit(n, (btn.x+20, btn.y+18))
-                screen.blit(d, (btn.x+20, btn.y+58))
-                screen.blit(k, (btn.right-60, btn.y+42))
+                canvas.blit(n, (btn.x+20, btn.y+18))
+                canvas.blit(d, (btn.x+20, btn.y+58))
+                canvas.blit(k, (btn.right-60, btn.y+42))
             
             hints = f_small.render(
                 "[1] Night Shift   [2] Peak Hours   [3] Emergency   [Q] Quit",
                 True, (150, 150, 180))
-            screen.blit(hints, (700 - hints.get_width()//2, 750))
+            canvas.blit(hints, (700 - hints.get_width()//2, 750))
             
+            # Scale and blit to screen
+            scaled_w = int(1400 * scale)
+            scaled_h = int(800 * scale)
+            scaled = pygame.transform.scale(canvas, (scaled_w, scaled_h))
+            screen.fill((0, 0, 0))
+            screen.blit(scaled, (ox, oy))
             pygame.display.flip()
             lc.tick(60)
 
-    # Game loop - mode and scenario selection
-    current_mode = show_main_menu()
-    if current_mode == "quit" or current_mode is None:
-        pygame.quit(); sys.exit(0)
-    
-    current_scenario = show_scenario_menu()
-    if current_scenario is None:
-        pygame.quit(); sys.exit(0)
-    
-    # Get scenario configuration
-    sm = ScenarioManager()
-    num_robots = sm.SCENARIOS[current_scenario]["robots"]
-    max_steps = sm.SCENARIOS[current_scenario]["max_steps"]
-
-    while True:
-        next_mode = run_simulation(
-            headless=False,
-            max_steps=max_steps,
-            num_robots=num_robots,
-            mode=current_mode,
-            slow=args.slow,
-            existing_screen=screen,
-            scenario=current_scenario,
-            resume=args.resume,
-            demo_deadlock=args.demo_deadlock
-        )
-        if next_mode is None or next_mode == "quit":
-            break
+    # Game loop - mode and scenario selection with KeyboardInterrupt protection
+    try:
+        current_mode = show_main_menu()
+        if current_mode == "quit":
+            pygame.quit()
+            sys.exit(0)
         
-        # After post round screen, ask scenario again
-        current_mode = next_mode
-        if current_mode not in (None, "quit"):
-            current_scenario = show_scenario_menu()
-            if current_scenario is None:
-                break
-            num_robots = sm.SCENARIOS[current_scenario]["robots"]
-            max_steps = sm.SCENARIOS[current_scenario]["max_steps"]
-            args.resume = False  # Don't resume again after first round
+        current_scenario = show_scenario_menu()
+        if current_scenario == "quit":
+            pygame.quit()
+            sys.exit(0)
+        
+        # Get scenario configuration
+        sm = ScenarioManager()
+        num_robots = sm.SCENARIOS[current_scenario]["robots"]
+        max_steps = sm.SCENARIOS[current_scenario]["max_steps"]
 
-    pygame.quit()
-    sys.exit(0)
+        while True:
+            next_mode = run_simulation(
+                headless=False,
+                max_steps=max_steps,
+                num_robots=num_robots,
+                mode=current_mode,
+                slow=args.slow,
+                existing_screen=screen,
+                scenario=current_scenario,
+                resume=args.resume,
+                demo_deadlock=args.demo_deadlock
+            )
+            if next_mode is None or next_mode == "quit":
+                break
+            
+            # After post round screen, ask scenario again
+            current_mode = next_mode
+            if current_mode not in (None, "quit"):
+                current_scenario = show_scenario_menu()
+                if current_scenario == "quit":
+                    break
+                num_robots = sm.SCENARIOS[current_scenario]["robots"]
+                max_steps = sm.SCENARIOS[current_scenario]["max_steps"]
+                args.resume = False  # Don't resume again after first round
+    except KeyboardInterrupt:
+        pass
+    finally:
+        pygame.quit()
+        sys.exit(0)

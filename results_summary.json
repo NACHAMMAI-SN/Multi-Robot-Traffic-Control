@@ -1,35 +1,20 @@
 {
-  "timestamp": "2026-04-19T15:55:38.915983",
-  "simulation_steps": 200,
-  "scenario": "night_shift",
+  "timestamp": "2026-04-19T16:09:14.029577",
+  "simulation_steps": 50,
+  "scenario": "peak_hours",
   "mode": "auto",
-  "total_robots": 8,
+  "total_robots": 12,
   "robots_completed": 0,
-  "completion_rate": "0/8",
+  "completion_rate": "0/12",
   "metrics": {
-    "total_steps": 200,
+    "total_steps": 50,
     "deadlocks_resolved": 0,
-    "avg_delay_per_robot": 184.75,
+    "avg_delay_per_robot": 28.44,
     "throughput": 0.0,
     "robots_completed": 0,
-    "total_robots": 8,
+    "total_robots": 12,
     "conflict_log": [],
     "throughput_history": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
       0,
       0,
       0,
@@ -38,374 +23,200 @@
     ]
   },
   "heatmap_stats": {
-    "total_traversals": 6,
+    "total_traversals": 0,
     "hotspots": [
-      [
-        2,
-        3,
-        1.0
-      ],
       [
         0,
         1,
-        0.5034657359027997
+        1.0
       ],
       [
         1,
         5,
-        0.5034657359027997
+        1.0
       ],
       [
-        2,
         6,
-        0.5034657359027997
+        10,
+        1.0
       ],
       [
-        3,
-        2,
-        0.5034657359027997
+        8,
+        9,
+        1.0
+      ],
+      [
+        9,
+        10,
+        1.0
       ]
     ],
     "step_history": [
       {
-        "step": 110,
+        "step": 10,
         "hotspots": [
-          [
-            2,
-            3,
-            1.0
-          ],
           [
             0,
             1,
-            0.5034657359027997
+            1.0
           ],
           [
             1,
             5,
-            0.5034657359027997
+            1.0
+          ],
+          [
+            8,
+            9,
+            1.0
+          ],
+          [
+            9,
+            10,
+            1.0
           ],
           [
             2,
             6,
-            0.5034657359027997
-          ],
-          [
-            3,
-            2,
-            0.5034657359027997
+            0.5
           ]
         ]
       },
       {
-        "step": 120,
+        "step": 20,
         "hotspots": [
-          [
-            2,
-            3,
-            1.0
-          ],
           [
             0,
             1,
-            0.5034657359027997
+            1.0
           ],
           [
             1,
             5,
-            0.5034657359027997
+            1.0
+          ],
+          [
+            8,
+            9,
+            1.0
+          ],
+          [
+            9,
+            10,
+            1.0
           ],
           [
             2,
             6,
-            0.5034657359027997
-          ],
-          [
-            3,
-            2,
-            0.5034657359027997
+            0.5
           ]
         ]
       },
       {
-        "step": 130,
+        "step": 30,
         "hotspots": [
-          [
-            2,
-            3,
-            1.0
-          ],
           [
             0,
             1,
-            0.5034657359027997
+            1.0
           ],
           [
             1,
             5,
-            0.5034657359027997
+            1.0
+          ],
+          [
+            8,
+            9,
+            1.0
+          ],
+          [
+            9,
+            10,
+            1.0
           ],
           [
             2,
             6,
-            0.5034657359027997
-          ],
-          [
-            3,
-            2,
-            0.5034657359027997
+            0.5
           ]
         ]
       },
       {
-        "step": 140,
+        "step": 40,
         "hotspots": [
-          [
-            2,
-            3,
-            1.0
-          ],
           [
             0,
             1,
-            0.5034657359027997
+            1.0
           ],
           [
             1,
             5,
-            0.5034657359027997
+            1.0
+          ],
+          [
+            8,
+            9,
+            1.0
+          ],
+          [
+            9,
+            10,
+            1.0
           ],
           [
             2,
             6,
-            0.5034657359027997
-          ],
-          [
-            3,
-            2,
-            0.5034657359027997
+            0.5
           ]
         ]
       },
       {
-        "step": 150,
+        "step": 50,
         "hotspots": [
-          [
-            2,
-            3,
-            1.0
-          ],
           [
             0,
             1,
-            0.5034657359027997
+            1.0
           ],
           [
             1,
             5,
-            0.5034657359027997
-          ],
-          [
-            2,
-            6,
-            0.5034657359027997
-          ],
-          [
-            3,
-            2,
-            0.5034657359027997
-          ]
-        ]
-      },
-      {
-        "step": 160,
-        "hotspots": [
-          [
-            2,
-            3,
             1.0
           ],
           [
-            0,
-            1,
-            0.5034657359027997
-          ],
-          [
-            1,
-            5,
-            0.5034657359027997
-          ],
-          [
-            2,
             6,
-            0.5034657359027997
-          ],
-          [
-            3,
-            2,
-            0.5034657359027997
-          ]
-        ]
-      },
-      {
-        "step": 170,
-        "hotspots": [
-          [
-            2,
-            3,
+            10,
             1.0
           ],
           [
-            0,
-            1,
-            0.5034657359027997
-          ],
-          [
-            1,
-            5,
-            0.5034657359027997
-          ],
-          [
-            2,
-            6,
-            0.5034657359027997
-          ],
-          [
-            3,
-            2,
-            0.5034657359027997
-          ]
-        ]
-      },
-      {
-        "step": 180,
-        "hotspots": [
-          [
-            2,
-            3,
+            8,
+            9,
             1.0
           ],
           [
-            0,
-            1,
-            0.5034657359027997
-          ],
-          [
-            1,
-            5,
-            0.5034657359027997
-          ],
-          [
-            2,
-            6,
-            0.5034657359027997
-          ],
-          [
-            3,
-            2,
-            0.5034657359027997
-          ]
-        ]
-      },
-      {
-        "step": 190,
-        "hotspots": [
-          [
-            2,
-            3,
+            9,
+            10,
             1.0
-          ],
-          [
-            0,
-            1,
-            0.5034657359027997
-          ],
-          [
-            1,
-            5,
-            0.5034657359027997
-          ],
-          [
-            2,
-            6,
-            0.5034657359027997
-          ],
-          [
-            3,
-            2,
-            0.5034657359027997
-          ]
-        ]
-      },
-      {
-        "step": 200,
-        "hotspots": [
-          [
-            2,
-            3,
-            1.0
-          ],
-          [
-            0,
-            1,
-            0.5034657359027997
-          ],
-          [
-            1,
-            5,
-            0.5034657359027997
-          ],
-          [
-            2,
-            6,
-            0.5034657359027997
-          ],
-          [
-            3,
-            2,
-            0.5034657359027997
           ]
         ]
       }
     ]
   },
   "trajectories": {
-    "R0": [
-      {
-        "node": 1,
-        "step": 12
-      }
-    ],
+    "R0": [],
     "R1": [],
-    "R2": [
-      {
-        "node": 5,
-        "step": 4
-      },
-      {
-        "node": 9,
-        "step": 9
-      }
-    ],
+    "R2": [],
     "R3": [],
-    "R4": [
-      {
-        "node": 6,
-        "step": 4
-      },
-      {
-        "node": 10,
-        "step": 9
-      }
-    ],
+    "R4": [],
     "R5": [],
-    "R6": [
-      {
-        "node": 2,
-        "step": 11
-      }
-    ],
-    "R7": []
+    "R6": [],
+    "R7": [],
+    "R8": [],
+    "R9": [],
+    "R10": [],
+    "R11": []
   },
   "robot_summary": [
     {
@@ -413,84 +224,124 @@
       "start": 0,
       "goal": 19,
       "status": "WAITING",
-      "replan_count": 11,
-      "steps_waiting": 5,
+      "replan_count": 2,
+      "steps_waiting": 16,
       "goal_reached_step": null
     },
     {
       "id": "R1",
-      "start": 19,
-      "goal": 0,
+      "start": 1,
+      "goal": 18,
       "status": "WAITING",
-      "replan_count": 11,
-      "steps_waiting": 13,
+      "replan_count": 2,
+      "steps_waiting": 11,
       "goal_reached_step": null
     },
     {
       "id": "R2",
-      "start": 1,
-      "goal": 18,
-      "status": "WAITING",
-      "replan_count": 11,
-      "steps_waiting": 4,
+      "start": 2,
+      "goal": 17,
+      "status": "EMERGENCY_STOP",
+      "replan_count": 2,
+      "steps_waiting": 6,
       "goal_reached_step": null
     },
     {
       "id": "R3",
-      "start": 18,
-      "goal": 1,
+      "start": 3,
+      "goal": 16,
       "status": "WAITING",
-      "replan_count": 11,
-      "steps_waiting": 13,
+      "replan_count": 2,
+      "steps_waiting": 1,
       "goal_reached_step": null
     },
     {
       "id": "R4",
-      "start": 2,
-      "goal": 17,
+      "start": 4,
+      "goal": 15,
       "status": "WAITING",
-      "replan_count": 11,
-      "steps_waiting": 4,
+      "replan_count": 1,
+      "steps_waiting": 13,
       "goal_reached_step": null
     },
     {
       "id": "R5",
-      "start": 17,
-      "goal": 2,
-      "status": "WAITING",
-      "replan_count": 11,
-      "steps_waiting": 13,
+      "start": 5,
+      "goal": 14,
+      "status": "EMERGENCY_STOP",
+      "replan_count": 1,
+      "steps_waiting": 8,
       "goal_reached_step": null
     },
     {
       "id": "R6",
-      "start": 3,
-      "goal": 16,
-      "status": "WAITING",
-      "replan_count": 11,
-      "steps_waiting": 5,
+      "start": 6,
+      "goal": 13,
+      "status": "MOVING",
+      "replan_count": 1,
+      "steps_waiting": 0,
       "goal_reached_step": null
     },
     {
       "id": "R7",
-      "start": 16,
-      "goal": 3,
-      "status": "WAITING",
-      "replan_count": 11,
-      "steps_waiting": 13,
+      "start": 7,
+      "goal": 12,
+      "status": "EMERGENCY_STOP",
+      "replan_count": 0,
+      "steps_waiting": 15,
+      "goal_reached_step": null
+    },
+    {
+      "id": "R8",
+      "start": 8,
+      "goal": 11,
+      "status": "EMERGENCY_STOP",
+      "replan_count": 0,
+      "steps_waiting": 10,
+      "goal_reached_step": null
+    },
+    {
+      "id": "R9",
+      "start": 9,
+      "goal": 10,
+      "status": "MOVING",
+      "replan_count": 0,
+      "steps_waiting": 0,
+      "goal_reached_step": null
+    },
+    {
+      "id": "R10",
+      "start": 0,
+      "goal": 14,
+      "status": "IDLE",
+      "replan_count": 0,
+      "steps_waiting": 0,
+      "goal_reached_step": null
+    },
+    {
+      "id": "R11",
+      "start": 1,
+      "goal": 13,
+      "status": "IDLE",
+      "replan_count": 0,
+      "steps_waiting": 0,
       "goal_reached_step": null
     }
   ],
   "battery_stats": {
     "final_batteries": {
-      "R0": 36.0000000000005,
-      "R1": 61.649999999999494,
-      "R2": 56.349999999999554,
-      "R3": 61.649999999999494,
-      "R4": 56.249999999999545,
-      "R5": 61.649999999999494,
-      "R6": 45.000000000000526,
-      "R7": 61.649999999999494
+      "R0": 85.50000000000014,
+      "R1": 91.0499999999999,
+      "R2": 91.99999999999994,
+      "R3": 100.0,
+      "R4": 93.14999999999998,
+      "R5": 94.10000000000002,
+      "R6": 92.85000000000005,
+      "R7": 100.0,
+      "R8": 96.40000000000012,
+      "R9": 93.75000000000014,
+      "R10": 96.24999999999986,
+      "R11": 97.50000000000014
     },
     "charging_stations": [
       3,
@@ -498,7 +349,10 @@
       11,
       15
     ],
-    "robots_that_charged": []
+    "robots_that_charged": [
+      "R3",
+      "R7"
+    ]
   },
-  "heatmap_file": "heatmap_night_shift.png"
+  "heatmap_file": "heatmap_peak_hours.png"
 }
