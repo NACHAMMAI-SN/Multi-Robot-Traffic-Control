@@ -610,7 +610,7 @@ if __name__ == "__main__":
 
     # Block 3: GUI mode (everything else including --slow, --demo-deadlock, --resume, or no flags)
     pygame.init()
-    screen = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN)
+    screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
     pygame.display.set_caption("Multi-Robot Traffic Control System")
     f_large = pygame.font.SysFont("arial", 26, bold=True)
     f_med   = pygame.font.SysFont("arial", 17, bold=True)
@@ -618,21 +618,10 @@ if __name__ == "__main__":
     lc = pygame.time.Clock()
 
     def show_main_menu():
-        SW, SH = screen.get_width(), screen.get_height()
-        scale = min(SW/1400, SH/800)
-        ox = int((SW - 1400*scale) / 2)
-        oy = int((SH - 800*scale) / 2)
-        
-        def get_mouse():
-            mx, my = pygame.mouse.get_pos()
-            return (int((mx-ox)/scale), int((my-oy)/scale))
-        
-        canvas = pygame.Surface((1400, 800))
         btn_auto   = pygame.Rect(200, 320, 400, 180)
         btn_manual = pygame.Rect(800, 320, 400, 180)
-        
         while True:
-            mp = get_mouse()
+            mp = pygame.mouse.get_pos()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return "quit"
@@ -642,16 +631,15 @@ if __name__ == "__main__":
                     if event.key == pygame.K_q:
                         return "quit"
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        if btn_auto.collidepoint(mp):   return "auto"
-                        if btn_manual.collidepoint(mp): return "manual"
+                    if btn_auto.collidepoint(mp):   return "auto"
+                    if btn_manual.collidepoint(mp): return "manual"
             
-            canvas.fill((15, 15, 35))
+            screen.fill((15, 15, 35))
             
             # Title
             t = f_large.render(
                 "Multi-Robot Traffic Control System", True, (120,200,255))
-            canvas.blit(t, (700 - t.get_width()//2, 160))
+            screen.blit(t, (WINDOW_W//2 - t.get_width()//2, 160))
             
             # Buttons
             for rect, label, sub, color, key in [
@@ -665,43 +653,26 @@ if __name__ == "__main__":
                 hover = rect.collidepoint(mp)
                 dark  = tuple(max(0, c//4) for c in color)
                 edge  = tuple(min(255,c+40) for c in color) if hover else color
-                pygame.draw.rect(canvas, dark, rect, border_radius=14)
-                pygame.draw.rect(canvas, edge, rect, border_radius=14, width=3)
+                pygame.draw.rect(screen, dark, rect, border_radius=14)
+                pygame.draw.rect(screen, edge, rect, border_radius=14, width=3)
                 l = f_large.render(label, True, (255,255,255))
                 s = f_small.render(sub,   True, (200,200,220))
                 k = f_med.render(f"[{key}]", True, edge)
-                canvas.blit(l,(rect.centerx-l.get_width()//2, rect.y+30))
-                canvas.blit(s,(rect.centerx-s.get_width()//2, rect.y+80))
-                canvas.blit(k,(rect.centerx-k.get_width()//2, rect.y+125))
+                screen.blit(l,(rect.centerx-l.get_width()//2, rect.y+30))
+                screen.blit(s,(rect.centerx-s.get_width()//2, rect.y+80))
+                screen.blit(k,(rect.centerx-k.get_width()//2, rect.y+125))
             
             # Hints
             h = f_small.render(
                 "[1] Auto Mode       [2] Manual Mode       [Q] Quit",
                 True, (150,150,180))
-            canvas.blit(h, (700 - h.get_width()//2, 750))
+            screen.blit(h, (WINDOW_W//2 - h.get_width()//2, WINDOW_H-50))
             
-            # Scale and blit to screen
-            scaled_w = int(1400 * scale)
-            scaled_h = int(800 * scale)
-            scaled = pygame.transform.scale(canvas, (scaled_w, scaled_h))
-            screen.fill((0, 0, 0))
-            screen.blit(scaled, (ox, oy))
             pygame.display.flip()
             lc.tick(60)
     
     def show_scenario_menu():
         """Show scenario selection menu."""
-        SW, SH = screen.get_width(), screen.get_height()
-        scale = min(SW/1400, SH/800)
-        ox = int((SW - 1400*scale) / 2)
-        oy = int((SH - 800*scale) / 2)
-        
-        def get_mouse():
-            mx, my = pygame.mouse.get_pos()
-            return (int((mx-ox)/scale), int((my-oy)/scale))
-        
-        canvas = pygame.Surface((1400, 800))
-        
         scenarios = [
             ("night_shift", "🌙 Night Shift",
              "8 robots | Maintenance lanes closed | Reduced speeds",
@@ -717,7 +688,7 @@ if __name__ == "__main__":
         btns = [pygame.Rect(100, 250 + i*160, 1200, 130) for i in range(3)]
         
         while True:
-            mp = get_mouse()
+            mp = pygame.mouse.get_pos()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return "quit"
@@ -728,43 +699,36 @@ if __name__ == "__main__":
                     if event.key == pygame.K_q: return "quit"
                     if event.key == pygame.K_ESCAPE: return "quit"
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        for i, btn in enumerate(btns):
-                            if btn.collidepoint(mp):
-                                return scenarios[i][0]
+                    for i, btn in enumerate(btns):
+                        if btn.collidepoint(mp):
+                            return scenarios[i][0]
             
-            canvas.fill((15, 15, 35))
+            screen.fill((15, 15, 35))
             
             title = f_large.render("Choose Scenario", True, (120, 200, 255))
-            canvas.blit(title, (700 - title.get_width()//2, 120))
+            screen.blit(title, (700 - title.get_width()//2, 120))
             back = f_small.render("[ESC] Back to mode selection", True, (100, 100, 150))
-            canvas.blit(back, (700 - back.get_width()//2, 170))
+            screen.blit(back, (700 - back.get_width()//2, 170))
             
             for i, (key, name, desc, color, num) in enumerate(scenarios):
                 btn = btns[i]
                 hover = btn.collidepoint(mp)
                 dark = tuple(max(0, c//3) for c in color)
                 edge = tuple(min(255,c+50) for c in color) if hover else color
-                pygame.draw.rect(canvas, dark, btn, border_radius=12)
-                pygame.draw.rect(canvas, edge, btn, border_radius=12, width=3)
+                pygame.draw.rect(screen, dark, btn, border_radius=12)
+                pygame.draw.rect(screen, edge, btn, border_radius=12, width=3)
                 n = f_large.render(name, True, (255,255,255))
                 d = f_small.render(desc, True, (200,200,220))
                 k = f_med.render(f"[{num}]", True, edge)
-                canvas.blit(n, (btn.x+20, btn.y+18))
-                canvas.blit(d, (btn.x+20, btn.y+58))
-                canvas.blit(k, (btn.right-60, btn.y+42))
+                screen.blit(n, (btn.x+20, btn.y+18))
+                screen.blit(d, (btn.x+20, btn.y+58))
+                screen.blit(k, (btn.right-60, btn.y+42))
             
             hints = f_small.render(
                 "[1] Night Shift   [2] Peak Hours   [3] Emergency   [Q] Quit",
                 True, (150, 150, 180))
-            canvas.blit(hints, (700 - hints.get_width()//2, 750))
+            screen.blit(hints, (700 - hints.get_width()//2, 750))
             
-            # Scale and blit to screen
-            scaled_w = int(1400 * scale)
-            scaled_h = int(800 * scale)
-            scaled = pygame.transform.scale(canvas, (scaled_w, scaled_h))
-            screen.fill((0, 0, 0))
-            screen.blit(scaled, (ox, oy))
             pygame.display.flip()
             lc.tick(60)
 

@@ -1,54 +1,57 @@
 {
-  "timestamp": "2026-04-19T16:09:14.029577",
-  "simulation_steps": 50,
-  "scenario": "peak_hours",
+  "timestamp": "2026-04-19T16:19:01.681509",
+  "simulation_steps": 85,
+  "scenario": "emergency",
   "mode": "auto",
-  "total_robots": 12,
-  "robots_completed": 0,
-  "completion_rate": "0/12",
+  "total_robots": 10,
+  "robots_completed": 10,
+  "completion_rate": "10/10",
   "metrics": {
-    "total_steps": 50,
+    "total_steps": 85,
     "deadlocks_resolved": 0,
-    "avg_delay_per_robot": 28.44,
-    "throughput": 0.0,
-    "robots_completed": 0,
-    "total_robots": 12,
+    "avg_delay_per_robot": 33.0,
+    "throughput": 0.1176,
+    "robots_completed": 10,
+    "total_robots": 10,
     "conflict_log": [],
     "throughput_history": [
       0,
       0,
       0,
       0,
-      0
+      3,
+      5,
+      8,
+      9
     ]
   },
   "heatmap_stats": {
-    "total_traversals": 0,
+    "total_traversals": 34,
     "hotspots": [
-      [
-        0,
-        1,
-        1.0
-      ],
-      [
-        1,
-        5,
-        1.0
-      ],
       [
         6,
         10,
-        1.0
+        0.5069314718055995
       ],
       [
         8,
-        9,
-        1.0
+        12,
+        0.5069314718055995
       ],
       [
-        9,
         10,
-        1.0
+        14,
+        0.5069314718055995
+      ],
+      [
+        12,
+        16,
+        0.5069314718055995
+      ],
+      [
+        13,
+        17,
+        0.5069314718055995
       ]
     ],
     "step_history": [
@@ -57,27 +60,27 @@
         "hotspots": [
           [
             0,
-            1,
-            1.0
+            4,
+            0.5
           ],
           [
             1,
             5,
-            1.0
-          ],
-          [
-            8,
-            9,
-            1.0
-          ],
-          [
-            9,
-            10,
-            1.0
+            0.5
           ],
           [
             2,
             6,
+            0.5
+          ],
+          [
+            3,
+            7,
+            0.5
+          ],
+          [
+            4,
+            8,
             0.5
           ]
         ]
@@ -87,27 +90,27 @@
         "hotspots": [
           [
             0,
-            1,
-            1.0
+            4,
+            0.5
           ],
           [
             1,
             5,
-            1.0
-          ],
-          [
-            8,
-            9,
-            1.0
-          ],
-          [
-            9,
-            10,
-            1.0
+            0.5
           ],
           [
             2,
             6,
+            0.5
+          ],
+          [
+            3,
+            7,
+            0.5
+          ],
+          [
+            4,
+            8,
             0.5
           ]
         ]
@@ -117,27 +120,27 @@
         "hotspots": [
           [
             0,
-            1,
-            1.0
+            4,
+            0.5
           ],
           [
             1,
             5,
-            1.0
-          ],
-          [
-            8,
-            9,
-            1.0
-          ],
-          [
-            9,
-            10,
-            1.0
+            0.5
           ],
           [
             2,
             6,
+            0.5
+          ],
+          [
+            3,
+            7,
+            0.5
+          ],
+          [
+            4,
+            8,
             0.5
           ]
         ]
@@ -146,28 +149,28 @@
         "step": 40,
         "hotspots": [
           [
-            0,
-            1,
-            1.0
-          ],
-          [
-            1,
-            5,
-            1.0
-          ],
-          [
-            8,
-            9,
-            1.0
-          ],
-          [
-            9,
-            10,
-            1.0
-          ],
-          [
             2,
             6,
+            0.5034657359027997
+          ],
+          [
+            6,
+            10,
+            0.5034657359027997
+          ],
+          [
+            7,
+            11,
+            0.5034657359027997
+          ],
+          [
+            10,
+            14,
+            0.5034657359027997
+          ],
+          [
+            0,
+            4,
             0.5
           ]
         ]
@@ -176,172 +179,386 @@
         "step": 50,
         "hotspots": [
           [
-            0,
-            1,
-            1.0
+            6,
+            10,
+            0.5054930614433405
           ],
           [
-            1,
-            5,
-            1.0
+            7,
+            11,
+            0.5054930614433405
+          ],
+          [
+            10,
+            14,
+            0.5054930614433405
+          ],
+          [
+            0,
+            4,
+            0.5034657359027997
+          ],
+          [
+            2,
+            6,
+            0.5034657359027997
+          ]
+        ]
+      },
+      {
+        "step": 60,
+        "hotspots": [
+          [
+            4,
+            8,
+            0.5054930614433405
           ],
           [
             6,
             10,
-            1.0
+            0.5054930614433405
+          ],
+          [
+            7,
+            11,
+            0.5054930614433405
           ],
           [
             8,
-            9,
-            1.0
+            12,
+            0.5054930614433405
           ],
           [
             9,
+            13,
+            0.5054930614433405
+          ]
+        ]
+      },
+      {
+        "step": 70,
+        "hotspots": [
+          [
+            6,
             10,
-            1.0
+            0.5069314718055995
+          ],
+          [
+            8,
+            12,
+            0.5069314718055995
+          ],
+          [
+            4,
+            8,
+            0.5054930614433405
+          ],
+          [
+            7,
+            11,
+            0.5054930614433405
+          ],
+          [
+            9,
+            13,
+            0.5054930614433405
+          ]
+        ]
+      },
+      {
+        "step": 80,
+        "hotspots": [
+          [
+            6,
+            10,
+            0.5069314718055995
+          ],
+          [
+            8,
+            12,
+            0.5069314718055995
+          ],
+          [
+            10,
+            14,
+            0.5069314718055995
+          ],
+          [
+            12,
+            16,
+            0.5069314718055995
+          ],
+          [
+            4,
+            8,
+            0.5054930614433405
           ]
         ]
       }
     ]
   },
   "trajectories": {
-    "R0": [],
-    "R1": [],
-    "R2": [],
-    "R3": [],
-    "R4": [],
-    "R5": [],
-    "R6": [],
-    "R7": [],
-    "R8": [],
-    "R9": [],
-    "R10": [],
-    "R11": []
+    "R0": [
+      {
+        "node": 4,
+        "step": 49
+      },
+      {
+        "node": 8,
+        "step": 60
+      },
+      {
+        "node": 12,
+        "step": 68
+      },
+      {
+        "node": 16,
+        "step": 76
+      }
+    ],
+    "R1": [
+      {
+        "node": 5,
+        "step": 56
+      },
+      {
+        "node": 6,
+        "step": 62
+      },
+      {
+        "node": 10,
+        "step": 69
+      },
+      {
+        "node": 14,
+        "step": 74
+      },
+      {
+        "node": 13,
+        "step": 77
+      },
+      {
+        "node": 17,
+        "step": 85
+      }
+    ],
+    "R2": [
+      {
+        "node": 6,
+        "step": 38
+      },
+      {
+        "node": 10,
+        "step": 45
+      },
+      {
+        "node": 14,
+        "step": 50
+      },
+      {
+        "node": 18,
+        "step": 58
+      }
+    ],
+    "R3": [
+      {
+        "node": 7,
+        "step": 43
+      },
+      {
+        "node": 11,
+        "step": 50
+      },
+      {
+        "node": 15,
+        "step": 55
+      },
+      {
+        "node": 19,
+        "step": 63
+      }
+    ],
+    "R4": [
+      {
+        "node": 8,
+        "step": 46
+      },
+      {
+        "node": 12,
+        "step": 55
+      },
+      {
+        "node": 16,
+        "step": 63
+      }
+    ],
+    "R5": [
+      {
+        "node": 9,
+        "step": 53
+      },
+      {
+        "node": 13,
+        "step": 60
+      },
+      {
+        "node": 17,
+        "step": 68
+      }
+    ],
+    "R6": [
+      {
+        "node": 10,
+        "step": 35
+      },
+      {
+        "node": 14,
+        "step": 38
+      },
+      {
+        "node": 18,
+        "step": 45
+      }
+    ],
+    "R7": [
+      {
+        "node": 11,
+        "step": 40
+      },
+      {
+        "node": 15,
+        "step": 43
+      },
+      {
+        "node": 19,
+        "step": 50
+      }
+    ],
+    "R8": [
+      {
+        "node": 12,
+        "step": 43
+      },
+      {
+        "node": 16,
+        "step": 50
+      }
+    ],
+    "R9": [
+      {
+        "node": 13,
+        "step": 48
+      },
+      {
+        "node": 17,
+        "step": 55
+      }
+    ]
   },
   "robot_summary": [
     {
       "id": "R0",
       "start": 0,
       "goal": 19,
-      "status": "WAITING",
-      "replan_count": 2,
-      "steps_waiting": 16,
-      "goal_reached_step": null
+      "status": "GOAL_REACHED",
+      "replan_count": 3,
+      "steps_waiting": 4,
+      "goal_reached_step": 76
     },
     {
       "id": "R1",
       "start": 1,
       "goal": 18,
-      "status": "WAITING",
-      "replan_count": 2,
-      "steps_waiting": 11,
-      "goal_reached_step": null
+      "status": "GOAL_REACHED",
+      "replan_count": 3,
+      "steps_waiting": 0,
+      "goal_reached_step": 85
     },
     {
       "id": "R2",
       "start": 2,
       "goal": 17,
-      "status": "EMERGENCY_STOP",
-      "replan_count": 2,
-      "steps_waiting": 6,
-      "goal_reached_step": null
+      "status": "GOAL_REACHED",
+      "replan_count": 1,
+      "steps_waiting": 8,
+      "goal_reached_step": 58
     },
     {
       "id": "R3",
       "start": 3,
       "goal": 16,
-      "status": "WAITING",
-      "replan_count": 2,
-      "steps_waiting": 1,
-      "goal_reached_step": null
+      "status": "GOAL_REACHED",
+      "replan_count": 1,
+      "steps_waiting": 8,
+      "goal_reached_step": 63
     },
     {
       "id": "R4",
       "start": 4,
       "goal": 15,
-      "status": "WAITING",
+      "status": "GOAL_REACHED",
       "replan_count": 1,
-      "steps_waiting": 13,
-      "goal_reached_step": null
+      "steps_waiting": 10,
+      "goal_reached_step": 63
     },
     {
       "id": "R5",
       "start": 5,
       "goal": 14,
-      "status": "EMERGENCY_STOP",
+      "status": "GOAL_REACHED",
       "replan_count": 1,
       "steps_waiting": 8,
-      "goal_reached_step": null
+      "goal_reached_step": 68
     },
     {
       "id": "R6",
       "start": 6,
       "goal": 13,
-      "status": "MOVING",
-      "replan_count": 1,
+      "status": "GOAL_REACHED",
+      "replan_count": 0,
       "steps_waiting": 0,
-      "goal_reached_step": null
+      "goal_reached_step": 45
     },
     {
       "id": "R7",
       "start": 7,
       "goal": 12,
-      "status": "EMERGENCY_STOP",
+      "status": "GOAL_REACHED",
       "replan_count": 0,
-      "steps_waiting": 15,
-      "goal_reached_step": null
+      "steps_waiting": 0,
+      "goal_reached_step": 50
     },
     {
       "id": "R8",
       "start": 8,
       "goal": 11,
-      "status": "EMERGENCY_STOP",
+      "status": "GOAL_REACHED",
       "replan_count": 0,
-      "steps_waiting": 10,
-      "goal_reached_step": null
+      "steps_waiting": 0,
+      "goal_reached_step": 50
     },
     {
       "id": "R9",
       "start": 9,
       "goal": 10,
-      "status": "MOVING",
+      "status": "GOAL_REACHED",
       "replan_count": 0,
       "steps_waiting": 0,
-      "goal_reached_step": null
-    },
-    {
-      "id": "R10",
-      "start": 0,
-      "goal": 14,
-      "status": "IDLE",
-      "replan_count": 0,
-      "steps_waiting": 0,
-      "goal_reached_step": null
-    },
-    {
-      "id": "R11",
-      "start": 1,
-      "goal": 13,
-      "status": "IDLE",
-      "replan_count": 0,
-      "steps_waiting": 0,
-      "goal_reached_step": null
+      "goal_reached_step": 55
     }
   ],
   "battery_stats": {
     "final_batteries": {
-      "R0": 85.50000000000014,
-      "R1": 91.0499999999999,
-      "R2": 91.99999999999994,
+      "R0": 71.04999999999994,
+      "R1": 64.99999999999997,
+      "R2": 74.25000000000001,
       "R3": 100.0,
-      "R4": 93.14999999999998,
-      "R5": 94.10000000000002,
-      "R6": 92.85000000000005,
+      "R4": 79.15000000000003,
+      "R5": 77.50000000000004,
+      "R6": 84.50000000000009,
       "R7": 100.0,
-      "R8": 96.40000000000012,
-      "R9": 93.75000000000014,
-      "R10": 96.24999999999986,
-      "R11": 97.50000000000014
+      "R8": 88.0000000000001,
+      "R9": 87.75000000000011
     },
     "charging_stations": [
       3,
@@ -349,10 +566,7 @@
       11,
       15
     ],
-    "robots_that_charged": [
-      "R3",
-      "R7"
-    ]
+    "robots_that_charged": []
   },
-  "heatmap_file": "heatmap_peak_hours.png"
+  "heatmap_file": "heatmap_emergency.png"
 }
