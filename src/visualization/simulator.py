@@ -45,9 +45,10 @@ class Effect:
 class Simulator:
     def __init__(self, lane_graph, robots, traffic_controller, heatmap, existing_screen=None, 
                  battery_manager=None, scenario="night_shift", max_steps=1000):
+        self.fullscreen = True
         if existing_screen is None:
             pygame.init()
-            self.screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
+            self.screen = pygame.display.set_mode((WINDOW_W, WINDOW_H), pygame.FULLSCREEN)
             pygame.display.set_caption("Multi-Robot Traffic Control System")
         else:
             self.screen = existing_screen
@@ -322,11 +323,11 @@ class Simulator:
         if self.mode == "manual":
             controls = [
                 ("SPACE", "Pause"), ("H", "Heatmap"), ("↑↓←→", "Pan"),
-                ("1-8", "Select"), ("Click", "Assign"), ("ESC", "Deselect"), ("Q", "Quit")
+                ("1-8", "Select"), ("Click", "Assign"), ("ESC", "Deselect"), ("F11", "Fullscreen"), ("Q", "Quit")
             ]
         else:
             controls = [
-                ("SPACE", "Pause"), ("H", "Heatmap"), ("↑↓←→", "Pan"), ("Q", "Quit")
+                ("SPACE", "Pause"), ("H", "Heatmap"), ("↑↓←→", "Pan"), ("F11", "Fullscreen"), ("Q", "Quit")
             ]
         
         cx = 10
@@ -414,6 +415,13 @@ class Simulator:
             txt = self.f_small.render(text, True, color)
             self.screen.blit(txt, (sx + 18, y))
             y += 18
+        
+        # Add deadlock demo hint
+        y += 8
+        hint1 = self.f_tiny.render("💡 TIP: Assign robots toward each other", True, TEXT_DIM)
+        hint2 = self.f_tiny.render("    to see deadlock resolution!", True, TEXT_DIM)
+        self.screen.blit(hint1, (sx, y))
+        self.screen.blit(hint2, (sx, y + 12))
     
     def mpos(self, x, y):
         """Map position to screen coordinates."""
@@ -729,6 +737,17 @@ class Simulator:
         
         y += gh + 8
         
+        # Manual mode deadlock demo button
+        if self.mode == "manual":
+            btn_rect = pygame.Rect(MAP_W+16, y, WINDOW_W-MAP_W-32, 30)
+            hover = btn_rect.collidepoint(pygame.mouse.get_pos())
+            color = (180,50,50) if hover else (120,30,30)
+            pygame.draw.rect(self.screen, color, btn_rect, border_radius=6)
+            btn_txt = self.f_small.render("Force Deadlock Demo", True, (255,255,255))
+            self.screen.blit(btn_txt, (btn_rect.centerx - btn_txt.get_width()//2, btn_rect.y + 7))
+            self.deadlock_demo_btn = btn_rect
+            y += 38
+        
         # Manual mode instructions OR auto mode legend
         if self.mode == "manual":
             self.draw_manual_instructions()
@@ -837,6 +856,14 @@ class Simulator:
                 self.running = False
                 return False
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_F11:
+                    self.fullscreen = not self.fullscreen
+                    if self.fullscreen:
+                        self.screen = pygame.display.set_mode(
+                            (WINDOW_W, WINDOW_H), pygame.FULLSCREEN)
+                    else:
+                        self.screen = pygame.display.set_mode(
+                            (WINDOW_W, WINDOW_H))
                 if event.key == pygame.K_q:
                     self.running = False
                     return False
@@ -860,6 +887,10 @@ class Simulator:
                         if hasattr(pygame, key_attr):
                             if event.key == getattr(pygame, key_attr) and i < len(self.robots):
                                 self.selected_robot = self.robots[i]
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if self.mode == "manual" and hasattr(self, 'deadlock_demo_btn'):
+                    if self.deadlock_demo_btn.collidepoint(event.pos):
+                        self.trigger_deadlock_demo = True
         return True
     
     def render(self):

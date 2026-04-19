@@ -40,6 +40,14 @@ ROBOT_COLORS = [
     (150, 255, 100), (255, 80, 150), (100, 255, 255), (200, 200, 100),
 ]
 
+# Demo deadlock pairs - robots heading directly at each other
+DEMO_DEADLOCK_PAIRS = [
+    (0, 19), (19, 0),
+    (1, 18), (18, 1),
+    (2, 17), (17, 2),
+    (3, 16), (16, 3),
+]
+
 
 def load_config(path="config.yaml"):
     """Load configuration from YAML file."""
@@ -51,7 +59,7 @@ def load_config(path="config.yaml"):
 
 
 def run_simulation(headless=False, max_steps=1000, num_robots=8, mode="auto", slow=False, 
-                   existing_screen=None, scenario="night_shift", resume=False):
+                   existing_screen=None, scenario="night_shift", resume=False, demo_deadlock=False):
     """Run the multi-robot traffic control simulation."""
     config = load_config()
     max_steps = max_steps or config.get("simulation", {}).get("max_steps", 1000)
@@ -77,6 +85,22 @@ def run_simulation(headless=False, max_steps=1000, num_robots=8, mode="auto", sl
         tc.register_robot(r)
         robots.append(r)
         logging.info(f"R{i}: {start}→{goal} path={r.path} start_delay={r.start_delay}")
+
+    # Override for demo deadlock mode
+    if demo_deadlock:
+        # Override pairs to force head-on collisions
+        pairs = DEMO_DEADLOCK_PAIRS[:num_robots]
+        robots = []
+        for i, (start, goal) in enumerate(pairs):
+            color = ROBOT_COLORS[i % len(ROBOT_COLORS)]
+            r = Robot(f"R{i}", start, goal, lane_graph, color)
+            r.compute_path()
+            tc.register_robot(r)
+            robots.append(r)
+            logging.info(f"DEMO DEADLOCK - R{i}: {start}→{goal} path={r.path}")
+        # Remove staggered starts - all start together
+        for r in robots:
+            r.start_delay = 0
 
     # Apply scenario modifications
     sm = ScenarioManager()
@@ -239,6 +263,7 @@ def run_simulation(headless=False, max_steps=1000, num_robots=8, mode="auto", sl
         
         step = start_step
         prev_assigned_count = 0
+        prev_deadlocks = 0
         
         # Track manual mode completions (robots reset to IDLE after reaching goal)
         manual_completions = {r.id: 0 for r in robots}
@@ -352,6 +377,21 @@ def run_simulation(headless=False, max_steps=1000, num_robots=8, mode="auto", sl
                 sim.render()
                 sim.clock.tick(60)
                 continue
+            
+            # Check for deadlock demo trigger
+            if hasattr(sim, 'trigger_deadlock_demo') and sim.trigger_deadlock_demo:
+                sim.trigger_deadlock_demo = False
+                # Assign R0 and R1 to head directly at each other
+                if len(robots) >= 2:
+                    robots[0].goal_node = robots[1].current_node
+                    robots[0].replan_path()
+                    robots[1].goal_node = robots[0].current_node
+                    robots[1].replan_path()
+                    sim.target_nodes[robots[0].id] = robots[1].current_node
+                    sim.target_nodes[robots[1].id] = robots[0].current_node
+                    sim.add_notification(
+                        "Deadlock demo triggered! Watch R0 and R1 resolve it",
+                        WARNING, duration=240)
 
             # Move ALL robots that have assigned targets
             all_positions = {r.id: r.current_node for r in robots}
@@ -396,6 +436,13 @@ def run_simulation(headless=False, max_steps=1000, num_robots=8, mode="auto", sl
 
             tc.step(all_positions)
             heatmap.snapshot(step)
+            
+            # Deadlock detection notification
+            if tc.deadlocks_resolved > prev_deadlocks:
+                sim.add_notification(
+                    "DEADLOCK DETECTED AND RESOLVED! Robot replanned automatically",
+                    DANGER, duration=300)
+                prev_deadlocks = tc.deadlocks_resolved
             
             # Checkpoint save
             if ckpt.should_save(step):
@@ -515,6 +562,11 @@ if __name__ == "__main__":
         default="night_shift",
         help="Scenario: night_shift, peak_hours, emergency"
     )
+    parser.add_argument(
+        "--demo-deadlock",
+        action="store_true",
+        help="Force deadlock scenario for demonstration"
+    )
     args = parser.parse_args()
 
     # Headless/test mode
@@ -539,7 +591,8 @@ if __name__ == "__main__":
                 max_steps=50,
                 num_robots=8,
                 scenario="test",
-                resume=args.resume
+                resume=args.resume,
+                demo_deadlock=args.demo_deadlock
             )
             print("TEST PASSED")
             sys.exit(0)
@@ -550,13 +603,14 @@ if __name__ == "__main__":
                 max_steps=final_steps,
                 num_robots=num_robots,
                 scenario=args.scenario,
-                resume=args.resume
+                resume=args.resume,
+                demo_deadlock=args.demo_deadlock
             )
             sys.exit(0)
 
     # Init pygame once
     pygame.init()
-    screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
+    screen = pygame.display.set_mode((WINDOW_W, WINDOW_H), pygame.FULLSCREEN)
     pygame.display.set_caption("Multi-Robot Traffic Control System")
     f_large = pygame.font.SysFont("arial", 26, bold=True)
     f_med   = pygame.font.SysFont("arial", 17, bold=True)
@@ -701,7 +755,8 @@ if __name__ == "__main__":
             slow=args.slow,
             existing_screen=screen,
             scenario=current_scenario,
-            resume=args.resume
+            resume=args.resume,
+            demo_deadlock=args.demo_deadlock
         )
         if next_mode is None or next_mode == "quit":
             break
